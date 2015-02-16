@@ -3,32 +3,26 @@
 [Connector description including destination service or application with]
 
 # Mule supported versions
-Examples:
-Mule 3.4.x, 3.5.x
-Mule 3.4.1
-
-# [Destination service or application name] supported versions
-Example:
-Oracle E-Business Suite 12.1 and above.
-
-#Service or application supported modules
-Example:
-Oracle CRM
-Oracle Financials
-or 
-Salesforce API v.24
-Salesforce Metadata API
-
+- Mule 3.6
+- Mule 3.5 *(Not Tested)*
 
 # Installation 
-For beta connectors you can download the source code and build it with devkit to find it available on your local repository. Then you can add it to Studio…<TBD>
-
-For released connectors you can download them from the update site in Studio. 
-Open MuleStudio, go to Help → Install New Software and select MuleStudio Cloud Connectors Update Site where you’ll find all avaliable connectors.
+1. Clone this Slack SDK repository: **git clone https://github.com/estebanwasinger/slack-sdk**
+2. Clone the connector repository: **git clone https://github.com/estebanwasinger/slack-connector**
+3. Compile with Maven the Slack-SDK: **mvn clean install -DskipTests**
+4. Import the connector in [Anypoint Studio](http://www.mulesoft.com/platform/mule-studio): **File** --> **Import** --> **Anypoint Connector from External Location**
+5. Install it in Anypoint Studio: **Right Click in the connector project** --> **Anypoint Connector** --> **Install or Update**
+6. Enjoy!
 
 #Usage
-For information about usage our documentation at http://github.com/mulesoft/slack.
+## Configuration
+### Connection Management
+1. The easiest way to test the **Slack Connector** is to use the Connection Management configuration.
+2. Drop a HTTP connector, after that drop the **Slack Connector**, add a new Global configuration.
+3. Select Connection Management.
+4. The configuration will ask for an Access Token, go to your [Slack Profile](https://api.slack.com/web) and search for it.
+5. Complete the AccessToken, and click in **Test Connectivity**, if everything is OK, Anypoint Studio will show you that the Test Connection was successfull. 
 
 # Reporting Issues
 
-We use GitHub:Issues for tracking issues with this connector. You can report new issues at this link http://github.com/mulesoft/slack/issues.
+We use GitHub:Issues for tracking issues with this connector. You can report new issues at this link https://github.com/estebanwasinger/slack-connector/issues.
