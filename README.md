@@ -1,7 +1,5 @@
 # Slack Anypoint Connector
 
-[Connector description including destination service or application with]
-
 # Mule supported versions
 - Mule 3.6
 - Mule 3.5 *(Not Tested)*
