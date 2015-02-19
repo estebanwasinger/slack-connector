@@ -5,21 +5,26 @@
 
 package org.mule.modules.slack;
 
-import org.mule.api.annotations.ConnectionStrategy;
-import org.mule.api.annotations.Connector;
-import org.mule.api.annotations.Processor;
-import org.mule.api.annotations.Source;
+import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.oauth.OAuthProtected;
+import org.mule.api.annotations.param.Default;
+import org.mule.api.annotations.param.MetaDataKeyParam;
 import org.mule.api.callback.SourceCallback;
+import org.mule.common.metadata.*;
+import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
+import org.mule.common.metadata.datatype.DataType;
 import org.mule.modules.slack.strategy.SlackConnectionStrategy;
 import org.stevew.SlackClient;
+import org.stevew.exceptions.UserNotFoundException;
 import org.stevew.model.User;
 import org.stevew.model.channel.Channel;
 import org.stevew.model.channel.Message;
 import org.stevew.model.chat.MessageResponse;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Slack Anypoint Connector
@@ -50,11 +55,7 @@ public class SlackConnector {
         return slack().getChannelHistory(channelId, latestTimestamp, oldestTimestamp, mountOfMessages);
     }
 
-    @OAuthProtected
-    @Processor
-    public Channel getChannelByName(String channelName) {
-        return slack().getChannelByName(channelName);
-    }
+
 
     @OAuthProtected
     @Processor(friendlyName = "Get Channel By ID")
@@ -112,6 +113,23 @@ public class SlackConnector {
 
     @OAuthProtected
     @Processor
+    @MetaDataScope(ChannelCategory.class)
+    public Channel getChannelByName(@MetaDataKeyParam String channelName) {
+        return slack().getChannelByName(channelName);
+    }
+
+    
+
+    @OAuthProtected
+    @Processor
+    @MetaDataScope(UserCategory.class)
+    public User getUserInfoByName(@MetaDataKeyParam String username) throws UserNotFoundException {
+        System.out.println(username);
+        return slack().getUserInfoByName(username);
+    }
+
+    @OAuthProtected
+    @Processor
     public String listDirectMessageChannels(){
         return slack().listDirectMessageChannels();
     }
@@ -133,7 +151,7 @@ public class SlackConnector {
         }
     }*/
 
-    private SlackClient slack() {
+    protected SlackClient slack() {
         return connectionStrategy.getSlackClient();
     }
 
