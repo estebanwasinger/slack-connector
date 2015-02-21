@@ -36,8 +36,9 @@ public class ChannelCategory {
         List<MetaDataKey> entities = new ArrayList<MetaDataKey>();
         List<Channel> channelList = myconnector.slack().getChannelList();
         for(Channel channel: channelList){
-            entities.add(new DefaultMetaDataKey(channel.getName(),channel.getName()));
+            entities.add(new DefaultMetaDataKey(channel.getId(),channel.getName() + " - " + channel.getId()));
         }
+        
         return entities;
     }
     @MetaDataRetriever

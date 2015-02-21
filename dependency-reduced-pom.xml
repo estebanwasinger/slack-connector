@@ -26,6 +26,12 @@
   </repositories>
   <dependencies>
     <dependency>
+      <groupId>org.stevew</groupId>
+      <artifactId>slackSDK</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mule</groupId>
       <artifactId>mule-core</artifactId>
       <version>3.6.0</version>
@@ -42,6 +48,14 @@
         <exclusion>
           <artifactId>commons-cli</artifactId>
           <groupId>commons-cli</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-collections</artifactId>
+          <groupId>commons-collections</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-lang</artifactId>
+          <groupId>commons-lang</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-pool</artifactId>
@@ -103,6 +117,10 @@
           <artifactId>jgrapht-jdk1.5</artifactId>
           <groupId>org.jgrapht</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -111,6 +129,10 @@
       <version>3.6.0</version>
       <scope>provided</scope>
       <exclusions>
+        <exclusion>
+          <artifactId>javax.inject</artifactId>
+          <groupId>javax.inject</groupId>
+        </exclusion>
         <exclusion>
           <artifactId>mule-module-annotations</artifactId>
           <groupId>org.mule.modules</groupId>
@@ -128,16 +150,25 @@
           <groupId>org.springframework</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>dom4j</artifactId>
-          <groupId>dom4j</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>jaxen</artifactId>
           <groupId>jaxen</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mule-module-annotations</artifactId>
           <groupId>org.mule.modules</groupId>
+        </exclusion>
+      </exclusions>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <version>1.6.1</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>xml-apis</artifactId>
+          <groupId>xml-apis</groupId>
         </exclusion>
       </exclusions>
       <optional>true</optional>
@@ -151,6 +182,10 @@
         <exclusion>
           <artifactId>mule-module-http</artifactId>
           <groupId>org.mule.modules</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>signpost-core</artifactId>
+          <groupId>oauth.signpost</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -278,6 +313,10 @@
           <artifactId>json-schema-validator</artifactId>
           <groupId>com.github.fge</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>jackson-databind</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -289,6 +328,10 @@
         <exclusion>
           <artifactId>mule-transport-ssl</artifactId>
           <groupId>org.mule.transports</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-codec</artifactId>
+          <groupId>commons-codec</groupId>
         </exclusion>
         <exclusion>
           <artifactId>commons-httpclient</artifactId>
@@ -443,6 +486,14 @@
         <exclusion>
           <artifactId>javax.annotation-api</artifactId>
           <groupId>javax.annotation</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>spring-core</artifactId>
+          <groupId>org.springframework</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>ant</artifactId>
+          <groupId>org.apache.ant</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mule-module-xml</artifactId>
