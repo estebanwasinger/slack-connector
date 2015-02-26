@@ -10,8 +10,11 @@ import org.mule.api.annotations.Connector;
 import org.mule.api.annotations.MetaDataScope;
 import org.mule.api.annotations.Processor;
 import org.mule.api.annotations.display.FriendlyName;
+import org.mule.api.annotations.display.Path;
+import org.mule.api.annotations.display.Summary;
 import org.mule.api.annotations.oauth.OAuthProtected;
 import org.mule.api.annotations.param.MetaDataKeyParam;
+import org.mule.api.annotations.param.Optional;
 import org.mule.modules.slack.strategy.SlackConnectionStrategy;
 import org.stevew.SlackClient;
 import org.stevew.exceptions.UserNotFoundException;
@@ -22,6 +25,7 @@ import org.stevew.model.chat.MessageResponse;
 import org.stevew.model.im.DirectMessageChannel;
 import org.stevew.model.im.DirectMessageChannelCreationResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -161,6 +165,16 @@ public class SlackConnector {
     public List<Message> getGroupHistory(){
         slack().getGroupHistory();
     }*/
+
+    //***********
+    // Files methods
+    //***********
+    
+    @OAuthProtected
+    @Processor
+    public String uploadFile(@FriendlyName("Channel ID") String channelID, @Optional String fileName, @Optional String fileType, @Optional String title, @Optional String initialComment,@Summary("File path of the file to upload")@Path String filePath) throws IOException {
+     return slack().sendFile(channelID,fileName,fileType,title,initialComment,filePath);
+    }
 
     /*@OAuthProtected
     @Source
