@@ -6,6 +6,7 @@ import org.mule.common.metadata.DefaultMetaDataKey;
 import org.mule.common.metadata.MetaData;
 import org.mule.common.metadata.MetaDataKey;
 import org.stevew.model.channel.Channel;
+import org.stevew.model.group.Group;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -30,9 +31,9 @@ public class GroupCategory {
     @MetaDataKeyRetriever
     public List<MetaDataKey> getEntities() throws Exception {
         List<MetaDataKey> entities = new ArrayList<MetaDataKey>();
-        List<Channel> channelList = myconnector.slack().getChannelList();
-        for(Channel channel: channelList){
-            entities.add(new DefaultMetaDataKey(channel.getId(),channel.getName() + " - " + channel.getId()));
+        List<Group> groupList = myconnector.slack().getGroupList();
+        for(Group group: groupList){
+            entities.add(new DefaultMetaDataKey(group.getId(),group.getName() + " - " + group.getId()));
         }
 
         return entities;

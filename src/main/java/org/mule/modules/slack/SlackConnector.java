@@ -22,6 +22,7 @@ import org.stevew.model.User;
 import org.stevew.model.channel.Channel;
 import org.stevew.model.channel.Message;
 import org.stevew.model.chat.MessageResponse;
+import org.stevew.model.group.Group;
 import org.stevew.model.im.DirectMessageChannel;
 import org.stevew.model.im.DirectMessageChannelCreationResponse;
 
@@ -38,22 +39,22 @@ public class SlackConnector {
 
     @ConnectionStrategy
     SlackConnectionStrategy connectionStrategy;
-    
+
     //***********
     // Users methods
     //***********
-    
+
     @OAuthProtected
     @Processor
     @MetaDataScope(UserCategory.class)
     public User getUserInfo(@MetaDataKeyParam String id) throws UserNotFoundException {
         return slack().getUserInfo(id);
     }
-    
+
     @OAuthProtected
     @Processor
-    public List<User> getUserList(){
-        return slack().getUserList();   
+    public List<User> getUserList() {
+        return slack().getUserList();
     }
 
     //***********
@@ -120,21 +121,21 @@ public class SlackConnector {
 
     @OAuthProtected
     @Processor
-    @MetaDataScope(ChannelCategory.class)
+    @MetaDataScope(AllChannelCategory.class)
     public MessageResponse postMessage(String message, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId, @FriendlyName("Name to show") String username, @FriendlyName("Icon URL") String iconURL) {
         return slack().sendMessage(message, channelId, username, iconURL);
     }
 
     @OAuthProtected
     @Processor
-    @MetaDataScope(ChannelCategory.class)
+    @MetaDataScope(AllChannelCategory.class)
     public Boolean deleteMessage(@FriendlyName("Message TimeStamp") String timeStamp, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
         return slack().deleteMessage(timeStamp, channelId);
     }
 
     @OAuthProtected
     @Processor
-    @MetaDataScope(ChannelCategory.class)
+    @MetaDataScope(AllChannelCategory.class)
     public Boolean updateMessage(@FriendlyName("Message TimeStamp") String timeStamp, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId, String message) {
         return slack().updateMessage(timeStamp, channelId, message);
     }
@@ -160,20 +161,57 @@ public class SlackConnector {
     // Groups methods
     //***********
     
-    /*@OAuthProtected
+    @OAuthProtected
     @Processor
-    public List<Message> getGroupHistory(){
-        slack().getGroupHistory();
-    }*/
+    public List<Group> getGroupList(){
+        return slack().getGroupList();
+    }
+    
+    @OAuthProtected
+    @Processor
+    @MetaDataScope(GroupCategory.class)
+    public Boolean setGroupPurpose(@MetaDataKeyParam String channelID, String purpose){
+        return slack().setGroupPurpose(channelID,purpose);
+    }
+
+    @OAuthProtected
+    @Processor
+    @MetaDataScope(GroupCategory.class)
+    public Boolean setGroupTopic(@MetaDataKeyParam String channelID, String topic){
+        return slack().setGroupTopic(channelID, topic);
+    }
+    
+    @OAuthProtected
+    @Processor
+    public Group createGroup(String groupName){
+        return slack().createGroup(groupName);
+    }
+
+    @OAuthProtected
+    @Processor
+    @MetaDataScope(GroupCategory.class)
+    public Boolean closeGroup(@MetaDataKeyParam String channelID){
+        return slack().closeGroup(channelID);
+    }
+    
+    @OAuthProtected
+    @Processor
+    @MetaDataScope(GroupCategory.class)
+    public Boolean archiveGroup(@MetaDataKeyParam String channelID){
+        return slack().archiveGroup(channelID);
+    }
+    
+    
 
     //***********
     // Files methods
     //***********
-    
+
     @OAuthProtected
     @Processor
-    public String uploadFile(@FriendlyName("Channel ID") String channelID, @Optional String fileName, @Optional String fileType, @Optional String title, @Optional String initialComment,@Summary("File path of the file to upload")@Path String filePath) throws IOException {
-     return slack().sendFile(channelID,fileName,fileType,title,initialComment,filePath);
+    @MetaDataScope(AllChannelCategory.class)
+    public String uploadFile(@FriendlyName("Channel ID") @MetaDataKeyParam String channelID, @Optional String fileName, @Optional String fileType, @Optional String title, @Optional String initialComment, @Summary("File path of the file to upload") @Path String filePath) throws IOException {
+        return slack().sendFile(channelID, fileName, fileType, title, initialComment, filePath);
     }
 
     /*@OAuthProtected
