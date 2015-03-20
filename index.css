@@ -1,0 +1,243 @@
+body {
+  background-color: #414042;
+  font-family: Ubuntu, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    margin: 0;
+}
+
+.left-side{
+  margin-right: 65%;
+  margin-top: 15%;
+  text-align: center;
+  float: right;
+  text-align: right;
+  vertical-align: center;
+  margin-top: 4%;
+}
+
+h1{
+  font-size: 36px;
+}
+
+.right-side{
+  margin-left: 37%;
+  position: absolute;
+}
+
+.content h1 {
+  color: #e0e0e0;
+}
+
+
+a {
+  font-size: 16px;
+  text-decoration: none;
+  color: gray;
+}
+
+a:hover{
+  color:#1097E1;
+}
+
+div.table-title {
+  display: block;
+  margin: auto;
+  padding:5px;
+  width: 100%;
+}
+
+.title{
+  color: rgb(237, 235, 235) !important;
+  font-weight: normal;
+  width: 100%;
+  font-size: 40px;
+}
+
+.version {
+  text-align: right;
+  color: white
+}
+
+.middle {
+    margin-top: 14%;
+}
+
+li.demo-table{
+    font-size: 12px;
+    text-align: left;
+}
+
+.demo-table a {
+    font-size: 12px;
+}
+
+li a{
+  text-align: left;
+  font-size: 13px;
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 99%;
+    background: #fff;
+}
+td, th {
+    padding-bottom: 0.75em;
+    padding-top: 0.75em;
+    text-align: center;
+}
+  td.err {
+    background-color: #e992b9;
+    color: #fff;
+    font-size: 0.75em;
+    text-align: center;
+    line-height: 1;
+  }
+th {
+    background-color: #108CDD;
+    font-weight: bold;
+    color: #fff;
+    white-space: nowrap;
+}
+tbody th {
+  background-color: #108CDD;
+}
+
+tbody tr:nth-child(2n-1) {
+    background-color: #f5f5f5;
+    transition: all .125s ease-in-out;
+}
+
+
+
+
+/* DropDown Styling*/
+
+.wrapper-dropdown-5 {
+    /* Size & position */
+    position: relative;
+    padding: 12px 15px;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    /* Styles */
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    cursor: pointer;
+    outline: none;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+
+.wrapper-dropdown-5:after { /* Little arrow */
+    content: "";
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    margin-top: -3px;
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: #4cbeff transparent;
+}
+
+.wrapper-dropdown-5 .dropdown {
+    /* Size & position */
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index:10;
+    top: 60%;
+
+    /* Styles */
+    background: #fff;
+    border-radius: 0 0 5px 5px;
+    border: 1px solid rgba(0,0,0,0.2);
+    border-top: none;
+    border-bottom: none;
+    list-style: none;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+
+    /* Hiding */
+    max-height: 0;
+    overflow: hidden;
+}
+
+.wrapper-dropdown-5 .dropdown li {
+    padding: 0 10px ;
+}
+
+.wrapper-dropdown-5 .dropdown li a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    padding: 10px 0;
+    transition: all 0.3s ease-out;
+    border-bottom: 1px solid #e6e8ea;
+}
+
+.wrapper-dropdown-5 .dropdown li:last-of-type a {
+    border: none;
+}
+
+.wrapper-dropdown-5 .dropdown li i {
+    margin-right: 5px;
+    color: inherit;
+    vertical-align: middle;
+}
+
+/* Hover state */
+
+.wrapper-dropdown-5 .dropdown li:hover a {
+    color: #57a9d9;
+}
+
+/* Active state */
+
+.wrapper-dropdown-5.active {
+    border-radius: 5px 5px 0 0;
+    background: #4cbeff;
+    box-shadow: none;
+    border-bottom: none;
+    color: white;
+}
+
+.wrapper-dropdown-5.active:after {
+    border-color: #82d1ff transparent;
+}
+
+.wrapper-dropdown-5.active .dropdown {
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    max-height: 400px;
+}
+
+
+.wrapper-dropdown-5:focus {
+    border-radius: 5px 5px 0 0;
+    background: #4cbeff;
+    box-shadow: none;
+    border-bottom: none;
+    color: white;
+}
+
+.wrapper-dropdown-5:focus:after {
+    border-color: #82d1ff transparent;
+}
+
+.wrapper-dropdown-5:focus .dropdown {
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    max-height: 400px;
+}
+
+

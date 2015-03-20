@@ -1,0 +1,12 @@
+org.mule.modules.slack
+org.mule.modules.slack.adapter
+org.mule.modules.slack.adapters
+org.mule.modules.slack.agents
+org.mule.modules.slack.config
+org.mule.modules.slack.connectivity
+org.mule.modules.slack.devkit
+org.mule.modules.slack.oauth
+org.mule.modules.slack.pooling
+org.mule.modules.slack.processors
+org.mule.modules.slack.strategy
+
