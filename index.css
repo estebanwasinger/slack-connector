@@ -23,6 +23,7 @@ h1{
 .right-side{
   margin-left: 37%;
   position: absolute;
+  width: 53%;
 }
 
 .content h1 {
@@ -52,11 +53,6 @@ div.table-title {
   font-weight: normal;
   width: 100%;
   font-size: 40px;
-}
-
-.version {
-  text-align: right;
-  color: white
 }
 
 .middle {
@@ -111,6 +107,13 @@ tbody tr:nth-child(2n-1) {
 }
 
 
+.apidoc{
+    width: 20%;
+}
+
+.version{
+    width: 25%;
+}
 
 
 /* DropDown Styling*/
