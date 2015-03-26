@@ -20,8 +20,9 @@ import org.stevew.SlackClient;
 import org.stevew.exceptions.UserNotFoundException;
 import org.stevew.model.User;
 import org.stevew.model.channel.Channel;
-import org.stevew.model.channel.Message;
+import org.stevew.model.chat.Message;
 import org.stevew.model.chat.MessageResponse;
+import org.stevew.model.file.FileUploadResponse;
 import org.stevew.model.group.Group;
 import org.stevew.model.im.DirectMessageChannel;
 import org.stevew.model.im.DirectMessageChannelCreationResponse;
@@ -210,7 +211,7 @@ public class SlackConnector {
     @OAuthProtected
     @Processor
     @MetaDataScope(AllChannelCategory.class)
-    public String uploadFile(@FriendlyName("Channel ID") @MetaDataKeyParam String channelID, @Optional String fileName, @Optional String fileType, @Optional String title, @Optional String initialComment, @Summary("File path of the file to upload") @Path String filePath) throws IOException {
+    public FileUploadResponse uploadFile(@FriendlyName("Channel ID") @MetaDataKeyParam String channelID, @Optional String fileName, @Optional String fileType, @Optional String title, @Optional String initialComment, @Summary("File path of the file to upload") @Path String filePath) throws IOException {
         return slack().sendFile(channelID, fileName, fileType, title, initialComment, filePath);
     }
 
