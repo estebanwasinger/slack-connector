@@ -45,52 +45,6 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
     }
 
     /**
-     * Connect
-     *
-     * @param username A username
-     * @param password A password
-     * @throws ConnectionException
-     */
-    @Connect
-    @TestConnectivity
-    public void connect(@ConnectionKey String username, @Password String password)
-            throws ConnectionException {
-        /*
-         * CODE FOR ESTABLISHING A CONNECTION GOES IN HERE
-         */
-    }
-
-    /**
-     * Disconnect
-     */
-    @Disconnect
-    public void disconnect() {
-        /*
-         * CODE FOR CLOSING A CONNECTION GOES IN HERE
-         */
-    }
-
-    /**
-     * Are we connected
-     */
-    @ValidateConnection
-    public boolean isConnected() {
-       if (client == null){
-           return false;
-       }else{
-           return client.isConnected();
-       }
-    }
-
-
-    /**
-     * Are we connected
-     */
-    @ConnectionIdentifier
-    public String connectionId() {
-        return "001";
-    }
-    /**
      * Set accessToken
      *
      * @param accessToken
