@@ -1,9 +1,13 @@
 body {
   background-color: #414042;
   font-family: Ubuntu, sans-serif;
-    font-size: 14px;
-    line-height: 1.42857143;
-    margin: 0;
+  font-size: 14px;
+  line-height: 1.42857143;
+  margin: 0;
+}
+
+.middle {
+    margin-top: 13%;
 }
 
 .left-side{
@@ -21,9 +25,8 @@ h1{
 }
 
 .right-side{
-  margin-left: 37%;
+  margin-left: 40%;
   position: absolute;
-  width: 53%;
 }
 
 .content h1 {
@@ -49,24 +52,13 @@ div.table-title {
 }
 
 .title{
-  color: rgb(237, 235, 235) !important;
+  color: white !important;
   font-weight: normal;
   width: 100%;
   font-size: 40px;
 }
 
-.middle {
-    margin-top: 14%;
-}
 
-li.demo-table{
-    font-size: 12px;
-    text-align: left;
-}
-
-.demo-table a {
-    font-size: 12px;
-}
 
 li a{
   text-align: left;
@@ -74,29 +66,66 @@ li a{
 }
 
 
-table {
+/*
+  Table Title styling
+*/
+
+table.title-table {
     border-collapse: collapse;
-    width: 99%;
     background: #fff;
+    display: table;
 }
-td, th {
+table.title-table tbody {
+  background-color: #414042;
+}
+
+table.title-table  td, table.title-table th {
     padding-bottom: 0.75em;
     padding-top: 0.75em;
     text-align: center;
 }
-  td.err {
-    background-color: #e992b9;
-    color: #fff;
-    font-size: 0.75em;
+
+/*
+  Table Versions styling
+*/
+
+table.versions-table {
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 20px;
+    display: table;
+}
+
+table.versions-table thead, table.versions-table tbody {
+    float: left;
+}
+table.versions-table tbody {
+  overflow: auto;
+  height: 300px;
+  background-color: #414042;
+}
+
+table.versions-table td, table.versions-table th {
+    padding-bottom: 0.75em;
+    padding-top: 0.75em;
     text-align: center;
-    line-height: 1;
-  }
+}
+
+td.err {
+  background-color: #e992b9;
+  color: #fff;
+  font-size: 0.75em;
+  text-align: center;
+  line-height: 1;
+}
+
 th {
     background-color: #108CDD;
     font-weight: bold;
     color: #fff;
     white-space: nowrap;
 }
+
 tbody th {
   background-color: #108CDD;
 }
@@ -106,13 +135,22 @@ tbody tr:nth-child(2n-1) {
     transition: all .125s ease-in-out;
 }
 
-
-.apidoc{
-    width: 20%;
+tbody tr {
+    background-color: lightgray;
+    transition: all .125s ease-in-out;
 }
 
-.version{
-    width: 25%;
+
+th.apidoc, td.apidoc{
+    width: 100px;
+}
+
+th.version, td.version{
+    width: 100px;
+}
+
+th.samples, td.samples{
+    width: 300px;
 }
 
 
