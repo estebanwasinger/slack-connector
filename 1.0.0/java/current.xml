@@ -913,7 +913,7 @@
  type="java.lang.String"
  transient="false"
  volatile="false"
- value="&quot;UNNAMED.2396.7c99024&quot;"
+ value="&quot;UNNAMED.2422.e4041eb&quot;"
  static="true"
  final="true"
  deprecated="not deprecated"
@@ -2453,48 +2453,6 @@
 >
 </field>
 </class>
-<class name="PepeDefinitionParser"
- extends="org.mule.security.oauth.config.AbstractDevkitBasedDefinitionParser"
- abstract="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<constructor name="PepeDefinitionParser"
- type="org.mule.modules.slack.config.PepeDefinitionParser"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-</constructor>
-<method name="parse"
- return="org.springframework.beans.factory.config.BeanDefinition"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="element" type="org.w3c.dom.Element">
-</parameter>
-<parameter name="parserContext" type="org.springframework.beans.factory.xml.ParserContext">
-</parameter>
-</method>
-<field name="logger"
- type="org.slf4j.Logger"
- transient="false"
- volatile="false"
- static="true"
- final="false"
- deprecated="not deprecated"
- visibility="private"
->
-</field>
-</class>
 <class name="PostMessageDefinitionParser"
  extends="org.mule.security.oauth.config.AbstractDevkitBasedDefinitionParser"
  abstract="false"
@@ -3387,7 +3345,7 @@
  type="java.lang.String"
  transient="false"
  volatile="false"
- value="&quot;UNNAMED.2396.7c99024&quot;"
+ value="&quot;UNNAMED.2422.e4041eb&quot;"
  static="true"
  final="true"
  deprecated="not deprecated"
@@ -5464,127 +5422,6 @@
 >
 </field>
 <field name="userId"
- type="java.lang.Object"
- transient="false"
- volatile="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="protected"
->
-</field>
-</class>
-<class name="PepeMessageProcessor"
- extends="org.mule.devkit.processor.DevkitBasedMessageProcessor"
- abstract="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<implements name="org.mule.api.processor.MessageProcessor">
-</implements>
-<constructor name="PepeMessageProcessor"
- type="org.mule.modules.slack.processors.PepeMessageProcessor"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="operationName" type="java.lang.String">
-</parameter>
-</constructor>
-<method name="auxOutputMetaData"
- return="org.mule.common.Result&lt;org.mule.common.metadata.MetaData&gt;"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="inputMetadata" type="org.mule.common.metadata.MetaData">
-</parameter>
-<parameter name="key" type="java.lang.String">
-</parameter>
-</method>
-<method name="doProcess"
- return="org.mule.api.MuleEvent"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="event" type="org.mule.api.MuleEvent">
-</parameter>
-<exception name="Exception" type="java.lang.Exception">
-</exception>
-</method>
-<method name="getGenericMetaData"
- return="org.mule.common.Result&lt;org.mule.common.metadata.MetaData&gt;"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="metaDataKey" type="org.mule.common.metadata.MetaDataKey">
-</parameter>
-</method>
-<method name="getInputMetaData"
- return="org.mule.common.Result&lt;org.mule.common.metadata.MetaData&gt;"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-</method>
-<method name="getOutputMetaData"
- return="org.mule.common.Result&lt;org.mule.common.metadata.MetaData&gt;"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="inputMetadata" type="org.mule.common.metadata.MetaData">
-</parameter>
-</method>
-<method name="setAsda"
- return="void"
- abstract="false"
- native="false"
- synchronized="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="public"
->
-<parameter name="value" type="java.lang.Object">
-</parameter>
-</method>
-<field name="_asdaType"
- type="java.lang.String"
- transient="false"
- volatile="false"
- static="false"
- final="false"
- deprecated="not deprecated"
- visibility="protected"
->
-</field>
-<field name="asda"
  type="java.lang.Object"
  transient="false"
  volatile="false"
