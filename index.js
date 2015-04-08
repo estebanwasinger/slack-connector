@@ -18,3 +18,9 @@ $(".dropdown").on("click", function(e){
 	    $(this).children("ul").slideDown("fast");
 	  }
 });
+
+$("a").on("click", function(e){
+	  e.preventDefault();
+	  	var demoLink = this.getAttribute("href");
+	  	window.location.href = demoLink;
+});
