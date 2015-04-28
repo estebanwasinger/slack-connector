@@ -5,8 +5,8 @@ import org.mule.api.annotations.MetaDataRetriever;
 import org.mule.common.metadata.DefaultMetaDataKey;
 import org.mule.common.metadata.MetaData;
 import org.mule.common.metadata.MetaDataKey;
-import org.stevew.model.channel.Channel;
-import org.stevew.model.group.Group;
+import org.mule.modules.slack.client.model.group.Group;
+
 
 import javax.inject.Inject;
 import java.util.ArrayList;

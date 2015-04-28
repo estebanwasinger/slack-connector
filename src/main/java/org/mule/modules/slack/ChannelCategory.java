@@ -4,10 +4,10 @@ package org.mule.modules.slack;
 import org.mule.api.annotations.MetaDataKeyRetriever;
 import org.mule.api.annotations.MetaDataRetriever;
 import org.mule.api.annotations.components.MetaDataCategory;
-import org.mule.common.metadata.*;
-import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
-import org.mule.common.metadata.datatype.DataType;
-import org.stevew.model.channel.Channel;
+import org.mule.common.metadata.DefaultMetaDataKey;
+import org.mule.common.metadata.MetaData;
+import org.mule.common.metadata.MetaDataKey;
+import org.mule.modules.slack.client.model.channel.Channel;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

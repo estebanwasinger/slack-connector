@@ -8,11 +8,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mule.modules.slack.RegressionSuite;
 import org.mule.modules.slack.TestParent;
-import org.stevew.exceptions.SlackException;
-import org.stevew.exceptions.UserNotFoundException;
-import org.stevew.model.User;
-import org.stevew.model.channel.Channel;
-import org.stevew.model.chat.MessageResponse;
+import org.mule.modules.slack.client.exceptions.UserNotFoundException;
+import org.mule.modules.slack.client.model.User;
+import org.mule.modules.slack.client.model.channel.Channel;
+import org.mule.modules.slack.client.model.chat.MessageResponse;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import org.mule.api.annotations.*;
 import org.mule.api.annotations.components.ConnectionManagement;
 import org.mule.api.annotations.param.ConnectionKey;
 import org.mule.api.annotations.param.Default;
-import org.stevew.SlackClient;
+import org.mule.modules.slack.client.SlackClient;
 
 /**
  * Connection Management Strategy
@@ -70,11 +70,11 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
     }
 
 
-    @Override
     public SlackClient getSlackClient() {
         return slack;
     }
-    @Override
+
+
     public Boolean isAuthorized() {
         if(accessToken == null){
             return false;

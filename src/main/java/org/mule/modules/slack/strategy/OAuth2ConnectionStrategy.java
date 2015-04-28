@@ -1,12 +1,9 @@
 package org.mule.modules.slack.strategy;
 
 
-import org.mule.api.ConnectionException;
-import org.mule.api.annotations.*;
-import org.mule.api.annotations.display.Password;
+import org.mule.api.annotations.Configurable;
 import org.mule.api.annotations.oauth.*;
-import org.mule.api.annotations.param.ConnectionKey;
-import org.stevew.SlackClient;
+import org.mule.modules.slack.client.SlackClient;
 
 @OAuth2( configElementName = "oauth2-type", friendlyName="OAuth2 Configuration",
         accessTokenUrl = "https://slack.com/api/oauth.access",
@@ -93,12 +90,10 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
         return this.consumerSecret;
     }
 
-    @Override
     public SlackClient getSlackClient() {
         return client;
     }
 
-    @Override
     public Boolean isAuthorized() {
         if(accessToken == null){
             return false;

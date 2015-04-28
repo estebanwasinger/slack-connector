@@ -7,7 +7,7 @@ import org.mule.api.annotations.components.MetaDataCategory;
 import org.mule.common.metadata.DefaultMetaDataKey;
 import org.mule.common.metadata.MetaData;
 import org.mule.common.metadata.MetaDataKey;
-import org.stevew.model.User;
+import org.mule.modules.slack.client.model.User;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

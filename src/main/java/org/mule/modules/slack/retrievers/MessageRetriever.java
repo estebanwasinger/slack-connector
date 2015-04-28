@@ -1,7 +1,7 @@
 package org.mule.modules.slack.retrievers;
 
-import org.stevew.SlackClient;
-import org.stevew.model.chat.Message;
+import org.mule.modules.slack.client.SlackClient;
+import org.mule.modules.slack.client.model.chat.Message;
 
 import java.util.List;
 

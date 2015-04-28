@@ -7,10 +7,10 @@ import org.mule.api.annotations.components.MetaDataCategory;
 import org.mule.common.metadata.*;
 import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
 import org.mule.common.metadata.datatype.DataType;
-import org.stevew.model.User;
-import org.stevew.model.channel.Channel;
-import org.stevew.model.group.Group;
-import org.stevew.model.im.DirectMessageChannel;
+import org.mule.modules.slack.client.model.User;
+import org.mule.modules.slack.client.model.channel.Channel;
+import org.mule.modules.slack.client.model.group.Group;
+import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
