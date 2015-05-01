@@ -35,7 +35,6 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
     public void connect(@ConnectionKey String accessToken)
         throws ConnectionException {
         slack = new SlackClient(accessToken);
-        System.out.println(slack.testAuth());
         if(!slack.isConnected()){
             throw new ConnectionException(ConnectionExceptionCode.INCORRECT_CREDENTIALS,"Invalid Token", "Invalid Token");
         }else{

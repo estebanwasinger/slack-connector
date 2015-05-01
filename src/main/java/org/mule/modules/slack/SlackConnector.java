@@ -340,7 +340,7 @@ public class SlackConnector {
             //System.out.println("Retrieving messages!");
             List<Message> messages = messageRetriever.retrieve(slack(), channelID, null, oldestTimeStamp, "1000");
             //System.out.println("Oldest TS:" + oldestTimeStamp);
-            if (messages.size() == 0) {
+            if (messages.isEmpty()) {
                 //  System.out.println("No Updates!");
             } else {
                 oldestTimeStamp = messages.get(0).getTs();

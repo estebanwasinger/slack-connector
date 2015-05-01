@@ -8,6 +8,8 @@ import org.mule.modules.slack.client.exceptions.SlackException;
  */
 public class ErrorHandler {
 
+    private ErrorHandler(){};
+
     public static void verifyResponse(String response) {
         if (isValidResponse(response)) {
             return;

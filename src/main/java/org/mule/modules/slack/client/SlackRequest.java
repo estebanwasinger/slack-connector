@@ -35,7 +35,7 @@ public class SlackRequest {
         try {
             arguments.put(argName, URLEncoder.encode(argValue, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return this;
     }

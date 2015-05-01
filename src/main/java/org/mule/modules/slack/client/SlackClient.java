@@ -264,10 +264,9 @@ public class SlackClient {
         request.addArgument("username", username);
         request.addArgument("icon_url", iconUrl);
         request.addArgument("as_user", String.valueOf(asUser));
-        ArrayList<ChatAttachment> chatAttachmentArrayList = new ArrayList<ChatAttachment>();
+        List<ChatAttachment> chatAttachmentArrayList = new ArrayList<ChatAttachment>();
         chatAttachmentArrayList.add(chatAttachment);
-        request.addArgument("attachments",mapper.toJson(chatAttachmentArrayList));
-        System.out.println(mapper.toJson(chatAttachmentArrayList));
+        request.addArgument("attachments", mapper.toJson(chatAttachmentArrayList));
         String output = RestUtils.sendRequest(request);
         return mapper.fromJson(output, MessageResponse.class);
     }

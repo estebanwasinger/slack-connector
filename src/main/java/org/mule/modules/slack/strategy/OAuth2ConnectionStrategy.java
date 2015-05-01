@@ -38,7 +38,6 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
     @OAuthPostAuthorization
     public void postAuthorize() {
         client = new SlackClient(accessToken);
-        System.out.println(client.testAuth());
     }
 
     /**
