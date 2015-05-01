@@ -47,5 +47,6 @@ public class Operations {
     public static final String GROUPS_INVITE= "groups.invite";
     public static final String GROUPS_CLOSE= "groups.close";
     public static final String GROUPS_UNARCHIVE= "groups.unarchive";
+    public static final String GROUPS_INFO = "groups.info";
     public static final String FILES_UPLOAD = "files.upload";
 }

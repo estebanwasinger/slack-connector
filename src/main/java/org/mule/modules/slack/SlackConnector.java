@@ -65,6 +65,14 @@ public class SlackConnector {
     }
 
     @OAuthProtected
+    @Processor(friendlyName = "User - Info by name")
+    @Summary("This processor returns information about a team member.")
+    @MetaDataScope(UserCategory.class)
+    public User getUserInfoByName(@MetaDataKeyParam @Summary("User name to get info on") @FriendlyName("Username") String id) throws UserNotFoundException {
+        return slack().getUserInfoByName(id);
+    }
+
+    @OAuthProtected
     @Summary("This processor returns a list of all users in the team. This includes deleted/deactivated users.")
     @Processor(friendlyName = "User - List")
     public List<User> getUserList() {
@@ -286,6 +294,21 @@ public class SlackConnector {
     @MetaDataScope(GroupCategory.class)
     public Channel renameGroup(@Summary("Group to rename") @FriendlyName("Group ID") @MetaDataKeyParam String groupId, @Summary("New name for group") String groupName) {
         return slack().renameGroup(groupId, groupName);
+    }
+
+    @OAuthProtected
+    @Summary("This processor returns information about a private group.")
+    @Processor(friendlyName = "Group - Info")
+    @MetaDataScope(GroupCategory.class)
+    public Group getGroupInfo(@Summary("Group to get info on") @FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
+        return slack().getGroupInfo(channelId);
+    }
+
+    @OAuthProtected
+    @Processor(friendlyName = "Group - Leave")
+    @MetaDataScope(GroupCategory.class)
+    public Boolean leaveGroup(@FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
+        return slack().leaveGroup(channelId);
     }
 
     //***********

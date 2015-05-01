@@ -472,6 +472,15 @@ public class SlackClient {
         return mapper.fromJson(slackResponse.toString(), Channel.class);
     }
 
+    public Group getGroupInfo(String groupId) {
+        SlackRequest request = createAuthorizedRequest();
+        request.setOperation(Operations.GROUPS_INFO).addArgument("channel", groupId);
+        String output = RestUtils.sendRequest(request);
+
+        JSONObject slackResponse = (JSONObject) new JSONObject(output).get("group");
+        return mapper.fromJson(slackResponse.toString(), Group.class);
+    }
+
 
     //******************
     // File methods
