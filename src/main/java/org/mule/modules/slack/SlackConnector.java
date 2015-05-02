@@ -217,6 +217,13 @@ public class SlackConnector {
     }
 
     @OAuthProtected
+    @Processor(friendlyName = "IM - Close DM channel")
+   // @MetaDataScope(UserCategory.class) TODO
+    public Boolean closeDirectMessageChannel(@FriendlyName("DM Channel ID") String channelId) {
+        return slack().closeDirectMessageChannel(channelId);
+    }
+
+    @OAuthProtected
     @Processor(friendlyName = "IM - List DM channels")
     public List<DirectMessageChannel> listDirectMessageChannels() {
         return slack().getDirectMessageChannelsList();
@@ -273,6 +280,13 @@ public class SlackConnector {
     @MetaDataScope(GroupCategory.class)
     public Boolean closeGroup(@MetaDataKeyParam String channelID) {
         return slack().closeGroup(channelID);
+    }
+
+    @OAuthProtected
+    @Processor(friendlyName = "Group - Open")
+    @MetaDataScope(GroupCategory.class)
+    public Boolean openGroup(@MetaDataKeyParam String channelID) {
+        return slack().openGroup(channelID);
     }
 
     @OAuthProtected

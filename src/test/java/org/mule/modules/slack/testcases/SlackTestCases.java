@@ -17,6 +17,8 @@ import org.mule.modules.slack.client.model.channel.Channel;
 import org.mule.modules.slack.client.model.channel.Purpose;
 import org.mule.modules.slack.client.model.chat.Message;
 import org.mule.modules.slack.client.model.chat.MessageResponse;
+import org.mule.modules.slack.client.model.chat.attachment.ChatAttachment;
+import org.mule.modules.slack.client.model.chat.attachment.Field;
 import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
@@ -45,6 +47,7 @@ public class SlackTestCases extends TestParent{
     public static final String CHANNEL_RENAMING ="C04KG7XAM";
     public static final String CHANNEL_NAME = "random";
     public static final String ESTEBANWASINGER = "estebanwasinger";
+    public static final String DM_CHANNEL_ID = "D03NE28RN";
 
     @Category({ RegressionSuite.class })
     @Test
@@ -106,10 +109,30 @@ public class SlackTestCases extends TestParent{
 
     @Category({ RegressionSuite.class })
     @Test
+    public void testSetGroupPurpose() throws UserNotFoundException {
+        String date = getDateString();
+        getConnector().setGroupPurpose(GROUP_ID, date);
+        String purpose = getConnector().getGroupInfo(GROUP_ID).getPurpose().getValue();
+        assertEquals(purpose,date);
+    }
+
+
+
+    @Category({ RegressionSuite.class })
+    @Test
     public void testSetChannelTopic() throws UserNotFoundException {
         String date = getDateString();
         getConnector().setChannelTopic(CHANNEL_ID, date);
         String topic = getConnector().getChannelInfo(CHANNEL_ID).getTopic().getValue();
+        assertEquals(topic,date);
+    }
+
+    @Category({ RegressionSuite.class })
+    @Test
+    public void testSetGroupTopic() throws UserNotFoundException {
+        String date = getDateString();
+        getConnector().setGroupTopic(GROUP_ID, date);
+        String topic = getConnector().getGroupInfo(GROUP_ID).getTopic().getValue();
         assertEquals(topic,date);
     }
 
@@ -128,7 +151,8 @@ public class SlackTestCases extends TestParent{
 
     @Category({ RegressionSuite.class })
     @Test
-    public void testRenameChannel() throws UserNotFoundException {
+    public void testRenameChannel() throws UserNotFoundException, InterruptedException {
+        Thread.sleep(2000);
         String actualDate = getDateString();
         getConnector().renameChannel(CHANNEL_RENAMING, actualDate);
         assertEquals(actualDate,getConnector().getChannelInfo(CHANNEL_RENAMING).getName());
@@ -184,10 +208,33 @@ public class SlackTestCases extends TestParent{
 
     @Category({ RegressionSuite.class })
     @Test
+    public void testCloseAndOpenGroup() {
+        if(!getConnector().getGroupInfo(GROUP_ID).getIsOpen()){
+            getConnector().closeGroup(GROUP_ID);
+            assertEquals(false,getConnector().getGroupInfo(GROUP_ID).getIsOpen());
+        }
+        getConnector().openGroup(GROUP_ID);
+        assertEquals(true,getConnector().getGroupInfo(GROUP_ID).getIsOpen());
+    }
+
+    @Category({ RegressionSuite.class })
+    @Test
     public void testUpdateAndDeleteMessage() {
         MessageResponse response = getConnector().postMessage(TEST_MESSAGE, CHANNEL_ID, null, null, null);
         getConnector().updateMessage(response.getTs(),CHANNEL_ID,"updated message");
         getConnector().deleteMessage(response.getTs(),CHANNEL_ID);
+    }
+
+    @Category({ RegressionSuite.class })
+    @Test
+    public void testPostMessageWithAttachments() {
+        ChatAttachment chatAttachment = new ChatAttachment();
+        chatAttachment.setText("myText");
+        chatAttachment.setTitle("myTitle");
+        Field field = new Field();
+        field.setTitle("myOtherTitle");
+        field.setValue("myOtherValue");
+        MessageResponse response = getConnector().postMessageWithAttachment(TEST_MESSAGE,CHANNEL_ID,null,null,chatAttachment,field,null);
     }
 
     @Category({ RegressionSuite.class })
@@ -247,7 +294,14 @@ public class SlackTestCases extends TestParent{
     @Category({ RegressionSuite.class })
     @Test
     public void testOpenDMChannel() throws IOException {
-        DirectMessageChannelCreationResponse directMessageChannelCreationResponse = getConnector().openDirectMessageChannel(USER_ID);
+        getConnector().openDirectMessageChannel(USER_ID);
+    }
+
+    @Category({ RegressionSuite.class })
+    @Test
+    public void testCloseDMChannel() throws IOException {
+        Boolean aBoolean = getConnector().closeDirectMessageChannel(DM_CHANNEL_ID);
+        assertEquals(true,aBoolean);
     }
 
     private String getDateString() {
