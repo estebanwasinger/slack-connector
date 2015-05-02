@@ -27,6 +27,10 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.metadata.AllChannelCategory;
+import org.mule.modules.slack.metadata.ChannelCategory;
+import org.mule.modules.slack.metadata.GroupCategory;
+import org.mule.modules.slack.metadata.UserCategory;
 import org.mule.modules.slack.retrievers.ChannelMessageRetriever;
 import org.mule.modules.slack.retrievers.DirectMessageRetriever;
 import org.mule.modules.slack.retrievers.GroupMessageRetriever;
@@ -407,7 +411,7 @@ public class SlackConnector {
         throw new Exception("Incorrect name for channel");
     }
 
-    protected SlackClient slack() {
+    public SlackClient slack() {
         return connectionStrategy.getSlackClient();
     }
 

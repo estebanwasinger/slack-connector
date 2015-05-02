@@ -310,4 +310,11 @@ public class SlackTestCases extends TestParent{
         return dateFormat.format(date);
     }
 
+    // TODO CTF Doesn't support metadata categories
+    /*@Category({ RegressionSuite.class })
+    @Test
+    public void testDataSense() throws IOException {
+        getDispatcher().fetchMetaData()
+    }*/
+
 }

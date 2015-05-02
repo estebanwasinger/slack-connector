@@ -1,4 +1,4 @@
-package org.mule.modules.slack;
+package org.mule.modules.slack.metadata;
 
 
 import org.mule.api.annotations.MetaDataKeyRetriever;
@@ -7,6 +7,7 @@ import org.mule.api.annotations.components.MetaDataCategory;
 import org.mule.common.metadata.*;
 import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
 import org.mule.common.metadata.datatype.DataType;
+import org.mule.modules.slack.SlackConnector;
 import org.mule.modules.slack.client.model.User;
 import org.mule.modules.slack.client.model.channel.Channel;
 import org.mule.modules.slack.client.model.group.Group;
