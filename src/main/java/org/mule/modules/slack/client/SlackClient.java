@@ -1,3 +1,8 @@
+/**
+ * (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
+ * a copy of which has been included with this distribution in the LICENSE.md file.
+ */
+
 package org.mule.modules.slack.client;
 
 /**
@@ -461,7 +466,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Channel renameGroup(String channelId, String newName) {
+    public Group renameGroup(String channelId, String newName) {
         SlackRequest request = createAuthorizedRequest();
         request.setOperation(Operations.GROUPS_RENAME);
         request.addArgument("channel", channelId);
@@ -469,7 +474,7 @@ public class SlackClient {
         String output = RestUtils.sendRequest(request);
 
         JSONObject slackResponse = (JSONObject) new JSONObject(output).get("channel");
-        return mapper.fromJson(slackResponse.toString(), Channel.class);
+        return mapper.fromJson(slackResponse.toString(), Group.class);
     }
 
     public Group getGroupInfo(String groupId) {
