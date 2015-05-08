@@ -28,6 +28,10 @@ body {
     margin: 80 160;
 }
 
+.center-content{
+  margin-top: -150px;
+}
+
 #left{
 	float: left;
 	width: 40%;
@@ -39,6 +43,16 @@ body {
 	float: right;
 	width: 60%;
 	height: 100%;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+
 }
 
 #right-content{
