@@ -44,7 +44,7 @@ public class ChannelCategory {
         for(Channel channel: channelList){
             entities.add(new DefaultMetaDataKey(channel.getId(),channel.getName() + " - " + channel.getId()));
         }
-        
+
         return entities;
     }
     @MetaDataRetriever

@@ -1,11 +1,11 @@
 /**
- * (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
- * a copy of which has been included with this distribution in the LICENSE.md file.
- */
+* (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
+* a copy of which has been included with this distribution in the LICENSE.md file.
+*/
 
 package org.mule.modules.slack;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.BooleanUtils;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.display.Path;
@@ -37,21 +37,24 @@ import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
 import org.mule.modules.slack.strategy.OAuth2ConnectionStrategy;
 import org.mule.modules.slack.strategy.SlackConnectionStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Slack Anypoint Connector
- *
- * @author Esteban Wasinger
- */
+* Slack Anypoint Connector
+*
+* @author Esteban Wasinger
+*/
 @Connector(name = "slack", friendlyName = "Slack", minMuleVersion = "3.5.0")
 public class SlackConnector {
 
-    private static final Logger logger = Logger.getLogger(SlackConnector.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlackConnector.class);
 
     @ConnectionStrategy
     SlackConnectionStrategy connectionStrategy;
@@ -286,7 +289,7 @@ public class SlackConnector {
     @Processor(friendlyName = "Chat - Post message")
     @MetaDataScope(AllChannelCategory.class)
     public MessageResponse postMessage(String message, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId, @Optional @FriendlyName("Name to show") String username, @Optional @FriendlyName("Icon URL") String iconURL, @Optional Boolean asUser) {
-        return slack().sendMessage(message, channelId, username, iconURL, asUser);
+        return slack().sendMessage(message, channelId, username, iconURL, BooleanUtils.toBoolean(asUser));
     }
 
     /**
@@ -307,7 +310,7 @@ public class SlackConnector {
         List<Field> fields = new ArrayList<Field>();
         fields.add(field);
         chatAttachment.setFields(fields);
-        return slack().sendMessageWithAttachment(message, channelId, username, iconURL, chatAttachment, asUser);
+        return slack().sendMessageWithAttachment(message, channelId, username, iconURL, chatAttachment, BooleanUtils.toBoolean(asUser));
     }
 
     /**

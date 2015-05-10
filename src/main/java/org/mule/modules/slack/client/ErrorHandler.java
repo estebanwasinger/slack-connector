@@ -13,7 +13,9 @@ import org.mule.modules.slack.client.exceptions.SlackException;
  */
 public class ErrorHandler {
 
-    private ErrorHandler(){};
+    private ErrorHandler() {
+        return;
+    }
 
     public static void verifyResponse(String response) {
         if (isValidResponse(response)) {
