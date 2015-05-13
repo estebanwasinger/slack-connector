@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><Graph __version="3.5.0" author="estebanwasinger" created="Sun Mar 29 20:50:28 ART 2015" description="MessageResponse To JSON" guiVersion="3.4.4.P" id="1427673343235" licenseCode="Unlicensed" licenseType="Unknown" modified="Sun Mar 29 20:50:28 ART 2015" modifiedBy="estebanwasinger" name="MessageResponse_To_JSON" revision="1.0" showComponentDetails="false">
+<Global>
+<Metadata __index="1" __referenceCounter="1" __sourcePath="{}/object/message/attachments" _dataStructure="SINGLE_DIMENSIONAL_COLLECTION" _id="__id" _metadataParentId="63574fe3-cf4c-4607-89fc-fdb4039e178c" _parent_id="__parent_id" _type="Input" id="0aa10e3b-afec-4087-afa3-fdac50b0cc29">
+<Record fieldDelimiter="," name="attachments" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __artificialType="_parent_id" __systemManaged="true" name="__parent_id" type="string"/>
+<Field __index="1" __sourcePath="{}/object/message/attachments/fallback" containerType="SINGLE" label="fallback" name="fallback" type="string"/>
+<Field __index="2" __sourcePath="{}/object/message/attachments/fromUrl" containerType="SINGLE" label="fromUrl" name="fromUrl" type="string"/>
+<Field __index="3" __sourcePath="{}/object/message/attachments/id" containerType="SINGLE" label="id" name="id" type="integer"/>
+<Field __index="4" __sourcePath="{}/object/message/attachments/imageBytes" containerType="SINGLE" label="imageBytes" name="imageBytes" type="integer"/>
+<Field __index="5" __sourcePath="{}/object/message/attachments/imageHeight" containerType="SINGLE" label="imageHeight" name="imageHeight" type="integer"/>
+<Field __index="6" __sourcePath="{}/object/message/attachments/imageUrl" containerType="SINGLE" label="imageUrl" name="imageUrl" type="string"/>
+<Field __index="7" __sourcePath="{}/object/message/attachments/imageWidth" containerType="SINGLE" label="imageWidth" name="imageWidth" type="integer"/>
+<Field __index="8" __sourcePath="{}/object/message/attachments/serviceName" containerType="SINGLE" label="serviceName" name="serviceName" type="string"/>
+<Field __index="9" __sourcePath="{}/object/message/attachments/text" containerType="SINGLE" label="text" name="text" type="string"/>
+<Field __index="10" __sourcePath="{}/object/message/attachments/title" containerType="SINGLE" label="title" name="title" type="string"/>
+<Field __index="11" __sourcePath="{}/object/message/attachments/titleLink" containerType="SINGLE" label="titleLink" name="titleLink" type="string"/>
+</Record>
+</Metadata>
+<Metadata __index="5" __referenceCounter="1" __sourcePath="{}/object/message/attachments" _dataStructure="SINGLE_DIMENSIONAL_COLLECTION" _id="__id" _metadataParentId="3c3d6c2c-7e0d-4478-9696-588e2bfe9851" _parent_id="__parent_id" _type="Output" id="88cbc335-c0c9-4200-b546-038d2bd2e83d">
+<Record fieldDelimiter="," name="attachments" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __artificialType="_parent_id" __systemManaged="true" name="__parent_id" type="string"/>
+<Field __index="5" __sourcePath="{}/object/message/attachments/fallback" containerType="SINGLE" label="fallback" name="fallback" type="string"/>
+<Field __index="6" __sourcePath="{}/object/message/attachments/fromUrl" containerType="SINGLE" label="fromUrl" name="fromUrl" type="string"/>
+<Field __index="7" __sourcePath="{}/object/message/attachments/id" containerType="SINGLE" label="id" name="id" type="integer"/>
+<Field __index="8" __sourcePath="{}/object/message/attachments/imageBytes" containerType="SINGLE" label="imageBytes" name="imageBytes" type="integer"/>
+<Field __index="9" __sourcePath="{}/object/message/attachments/imageHeight" containerType="SINGLE" label="imageHeight" name="imageHeight" type="integer"/>
+<Field __index="10" __sourcePath="{}/object/message/attachments/imageUrl" containerType="SINGLE" label="imageUrl" name="imageUrl" type="string"/>
+<Field __index="11" __sourcePath="{}/object/message/attachments/imageWidth" containerType="SINGLE" label="imageWidth" name="imageWidth" type="integer"/>
+<Field __index="12" __sourcePath="{}/object/message/attachments/serviceName" containerType="SINGLE" label="serviceName" name="serviceName" type="string"/>
+<Field __index="13" __sourcePath="{}/object/message/attachments/text" containerType="SINGLE" label="text" name="text" type="string"/>
+<Field __index="14" __sourcePath="{}/object/message/attachments/title" containerType="SINGLE" label="title" name="title" type="string"/>
+<Field __index="15" __sourcePath="{}/object/message/attachments/titleLink" containerType="SINGLE" label="titleLink" name="titleLink" type="string"/>
+</Record>
+</Metadata>
+<Metadata __index="0" __referenceCounter="1" __sourcePath="{}/object" _dataStructure="OBJECT" _id="__id" _type="Input" id="63574fe3-cf4c-4607-89fc-fdb4039e178c">
+<Record fieldDelimiter="," name="MessageResponse" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __index="0" __sourcePath="{}/object/channel" containerType="SINGLE" label="channel" name="channel" type="string"/>
+<Field __index="12" __sourcePath="{}/object/message/text" containerType="SINGLE" label="text" name="text" type="string"/>
+<Field __index="13" __sourcePath="{}/object/message/ts" containerType="SINGLE" label="ts" name="ts" type="string"/>
+<Field __index="14" __sourcePath="{}/object/message/type" containerType="SINGLE" label="type" name="type" type="string"/>
+<Field __index="15" __sourcePath="{}/object/message/user" containerType="SINGLE" label="user" name="user" type="string"/>
+<Field __index="16" __sourcePath="{}/object/ok" containerType="SINGLE" label="ok" name="ok" type="string"/>
+<Field __index="17" __sourcePath="{}/object/ts" containerType="SINGLE" label="ts" name="ts_1" type="string"/>
+</Record>
+</Metadata>
+<Metadata __index="0" __referenceCounter="1" __sourcePath="{}/object" _dataStructure="OBJECT" _id="__id" _type="Output" id="3c3d6c2c-7e0d-4478-9696-588e2bfe9851">
+<Record fieldDelimiter="," name="object" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
+<Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
+<Field __index="0" __sourcePath="{}/object/channel" containerType="SINGLE" label="channel" name="channel" type="string"/>
+<Field __index="1" __sourcePath="{}/object/message/text" containerType="SINGLE" label="text" name="text" type="string"/>
+<Field __index="2" __sourcePath="{}/object/message/ts" containerType="SINGLE" label="ts" name="ts" type="string"/>
+<Field __index="3" __sourcePath="{}/object/message/type" containerType="SINGLE" label="type" name="type" type="string"/>
+<Field __index="4" __sourcePath="{}/object/message/user" containerType="SINGLE" label="user" name="user" type="string"/>
+<Field __index="16" __sourcePath="{}/object/ok" containerType="SINGLE" label="ok" name="ok" type="string"/>
+<Field __index="17" __sourcePath="{}/object/ts" containerType="SINGLE" label="ts" name="ts_1" type="string"/>
+</Record>
+</Metadata>
+<Dictionary>
+<Entry id="DictionaryEntry0" input="true" name="inputPayload" output="false" type="object"/>
+<Entry id="DictionaryEntry1" input="false" name="outputPayload" output="true" type="object"/>
+</Dictionary>
+</Global>
+<Phase number="0">
+<Node enabled="enabled" fileURL="dict:inputPayload" guiName="Pojo READER" guiX="20" guiY="20" id="BEAN_READER0" type="BEAN_READER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Context outPort="0" sequenceField="__id" xpath=".">
+  <Mapping cloverField="channel" trim="true" xpath="channel"/>
+  <Mapping cloverField="text" trim="true" xpath="message/text"/>
+  <Mapping cloverField="ts" trim="true" xpath="message/ts"/>
+  <Mapping cloverField="type" trim="true" xpath="message/type"/>
+  <Mapping cloverField="user" trim="true" xpath="message/user"/>
+  <Mapping cloverField="ok" trim="true" xpath="ok"/>
+  <Mapping cloverField="ts_1" trim="true" xpath="ts"/>
+  <Context generatedKey="__parent_id" outPort="1" parentKey="__id" sequenceField="__id" xpath="message/attachments">
+    <Mapping cloverField="fallback" trim="true" xpath="fallback"/>
+    <Mapping cloverField="fromUrl" trim="true" xpath="fromUrl"/>
+    <Mapping cloverField="id" trim="true" xpath="id"/>
+    <Mapping cloverField="imageBytes" trim="true" xpath="imageBytes"/>
+    <Mapping cloverField="imageHeight" trim="true" xpath="imageHeight"/>
+    <Mapping cloverField="imageUrl" trim="true" xpath="imageUrl"/>
+    <Mapping cloverField="imageWidth" trim="true" xpath="imageWidth"/>
+    <Mapping cloverField="serviceName" trim="true" xpath="serviceName"/>
+    <Mapping cloverField="text" trim="true" xpath="text"/>
+    <Mapping cloverField="title" trim="true" xpath="title"/>
+    <Mapping cloverField="titleLink" trim="true" xpath="titleLink"/>
+  </Context>
+</Context>
+]]></attr>
+<attr name="_data_format"><![CDATA[JAVA]]></attr>
+<attr name="schema"><![CDATA[<?xml version="1.0" encoding="UTF-8"?><schema-object>
+  <typed-object-ref type-ref="org.stevew.model.chat.MessageResponse"/>
+  <typed-object type="org.stevew.model.chat.MessageResponse">
+    <typed-object-ref name="channel" type-ref="java.lang.String"/>
+    <typed-object-ref name="message" type-ref="org.stevew.model.chat.Message"/>
+    <typed-object-ref name="ok" type-ref="java.lang.String"/>
+    <typed-object-ref name="ts" type-ref="java.lang.String"/>
+  </typed-object>
+  <typed-object type="org.stevew.model.chat.Message">
+    <schema-collection name="attachments" type="java.util.List">
+      <typed-object-ref type-ref="org.stevew.model.channel.Attachment"/>
+    </schema-collection>
+    <typed-object-ref name="text" type-ref="java.lang.String"/>
+    <typed-object-ref name="ts" type-ref="java.lang.String"/>
+    <typed-object-ref name="type" type-ref="java.lang.String"/>
+    <typed-object-ref name="user" type-ref="java.lang.String"/>
+  </typed-object>
+  <typed-object type="java.lang.Integer"/>
+  <typed-object type="java.lang.String"/>
+  <typed-object type="org.stevew.model.channel.Attachment">
+    <typed-object-ref name="fallback" type-ref="java.lang.String"/>
+    <typed-object-ref name="fromUrl" type-ref="java.lang.String"/>
+    <typed-object-ref name="id" type-ref="java.lang.Integer"/>
+    <typed-object-ref name="imageBytes" type-ref="java.lang.Integer"/>
+    <typed-object-ref name="imageHeight" type-ref="java.lang.Integer"/>
+    <typed-object-ref name="imageUrl" type-ref="java.lang.String"/>
+    <typed-object-ref name="imageWidth" type-ref="java.lang.Integer"/>
+    <typed-object-ref name="serviceName" type-ref="java.lang.String"/>
+    <typed-object-ref name="text" type-ref="java.lang.String"/>
+    <typed-object-ref name="title" type-ref="java.lang.String"/>
+    <typed-object-ref name="titleLink" type-ref="java.lang.String"/>
+  </typed-object>
+</schema-object>
+]]></attr>
+<attr name="__metadata"><![CDATA[true]]></attr>
+</Node>
+<Node enabled="enabled" guiName="Foreach 'attachments' -&gt; 'attachments'" guiX="460" guiY="120" id="FOREACH_ATTACHMENTS_ATTACHMENTS" transformClass="com.mulesoft.datamapper.transform.MelRecordTransform" type="REFORMAT">
+<attr name="melScript"><![CDATA[//MEL
+//START -> DO NOT REMOVE
+output.__id = input.__id;
+output.__parent_id = input.__parent_id;
+//END -> DO NOT REMOVE
+output.fallback = input.fallback;
+output.fromUrl = input.fromUrl;
+output.id = input.id;
+output.imageBytes = input.imageBytes;
+output.imageHeight = input.imageHeight;
+output.imageUrl = input.imageUrl;
+output.imageWidth = input.imageWidth;
+output.serviceName = input.serviceName;
+output.text = input.text;
+output.title = input.title;
+output.titleLink = input.titleLink;
+]]></attr>
+</Node>
+<Node enabled="enabled" guiName="Foreach 'object' -&gt; 'object'" guiX="460" guiY="20" id="FOREACH_OBJECT_OBJECT" transformClass="com.mulesoft.datamapper.transform.MelRecordTransform" type="REFORMAT">
+<attr name="melScript"><![CDATA[//MEL
+//START -> DO NOT REMOVE
+output.__id = input.__id;
+//END -> DO NOT REMOVE
+output.channel = input.channel;
+output.text = input.text;
+output.ts = input.ts;
+output.type = input.type;
+output.user = input.user;
+output.ok = input.ok;
+output.ts_1 = input.ts_1;
+]]></attr>
+</Node>
+<Node cacheInMemory="true" charset="UTF-8" enabled="enabled" fileURL="dict:outputPayload" guiName="JSON WRITER" guiX="900" guiY="20" id="JSON_WRITER0" type="JSON_WRITER">
+<attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<object xmlns:clover="http://www.cloveretl.com/ns/xmlmapping" clover:inPort="0">
+  <channel>$0.channel</channel>
+  <message>
+    <text>$0.text</text>
+    <ts>$0.ts</ts>
+    <type>$0.type</type>
+    <user>$0.user</user>
+    <clover:collection clover:name="attachments">
+      <item clover:inPort="1" clover:key="__parent_id" clover:parentKey="__id">
+        <fallback>$1.fallback</fallback>
+        <fromUrl>$1.fromUrl</fromUrl>
+        <id>$1.id</id>
+        <imageBytes>$1.imageBytes</imageBytes>
+        <imageHeight>$1.imageHeight</imageHeight>
+        <imageUrl>$1.imageUrl</imageUrl>
+        <imageWidth>$1.imageWidth</imageWidth>
+        <serviceName>$1.serviceName</serviceName>
+        <text>$1.text</text>
+        <title>$1.title</title>
+        <titleLink>$1.titleLink</titleLink>
+      </item>
+    </clover:collection>
+  </message>
+  <ok>$0.ok</ok>
+  <ts>$0.ts_1</ts>
+</object>]]></attr>
+<attr name="_data_format"><![CDATA[JSON]]></attr>
+</Node>
+<Edge debugMode="true" fromNode="BEAN_READER0:0" guiBendpoints="" id="Edge0" inPort="Port 0 (in)" metadata="63574fe3-cf4c-4607-89fc-fdb4039e178c" outPort="Port 0 (out)" toNode="FOREACH_OBJECT_OBJECT:0"/>
+<Edge debugMode="true" fromNode="BEAN_READER0:1" guiBendpoints="" id="Edge2" inPort="Port 0 (in)" metadata="0aa10e3b-afec-4087-afa3-fdac50b0cc29" outPort="Port 1 (out)" toNode="FOREACH_ATTACHMENTS_ATTACHMENTS:0"/>
+<Edge debugMode="true" fromNode="FOREACH_ATTACHMENTS_ATTACHMENTS:0" guiBendpoints="" id="Edge3" inPort="Port 1 (in)" metadata="88cbc335-c0c9-4200-b546-038d2bd2e83d" outPort="Port 0 (out)" toNode="JSON_WRITER0:1"/>
+<Edge debugMode="true" fromNode="FOREACH_OBJECT_OBJECT:0" guiBendpoints="" id="Edge1" inPort="Port 0 (in)" metadata="3c3d6c2c-7e0d-4478-9696-588e2bfe9851" outPort="Port 0 (out)" toNode="JSON_WRITER0:0"/>
+</Phase>
+</Graph>

@@ -21,6 +21,7 @@
         <devkit.studio.package.skip>false</devkit.studio.package.skip>
     </properties>
 
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>

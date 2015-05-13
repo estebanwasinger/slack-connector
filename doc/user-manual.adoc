@@ -1,0 +1,82 @@
+= Slack Connector
+
+---
+
+== Contents:
+
+. Introduction
+.. Mule Compatibility
+
+. Installing & Configuring
+.. Installing
+.. Configuring
+
+. See Also
+
+---
+
+== Introduction
+
+Slack is a team communication tool that provides a quick and easy way to communicate with your teammates. This connector helps to create easy and fast integrations and automation features with Slack.
+
+=== Mule Compatibility
+Mule 3.5.X and Mule 3.6.X
+
+---
+
+== Installing and Configuring
+
+=== Configuring
+
+#### Connection Management
+
+. Go to https://api.slack.com/web and look for your instance Token and copy the value.
+. Go back to *Anypoint Studio* and create a new Slack Connector configuration.
+. Select the *Connection Management type strategy*
+. The only configuration that you will need to configure is the *Access Token* copied from the first step.
+. Make a *Test Connection...* to check that the configuration is correct.
+. Ready to use!
+
+#### OAuth2
+
+. Go to https://api.slack.com/applications and create an application if you don't have one.
+. Complete the Name and the Redirect URI(s). For redirect URI you need to specify where your application will callback in an authorization request. For this example complete it with http://0.0.0.0:8081/authorize
+. Once you have your Application, go to Application Details a save the values of *Client ID* and *Client Secret*.
+. Go back to *Anypoint Studio* and in a Anypoint Mule Application create a new Slack Connector configuration.
+. Select the *OAuth2 type strategy*
+. Fill the *Client ID* and *Client Secret* with the Application details of the third step.
+. Click in the *OAuth tab* of the current configuration windows. Here you need configure where you Mule App will wait for the callback of you authorization. As the same way that we configured in the Application in Slack, fill the fields with the following data: _(This data is only for Demo purposes)_
++
+[options="header",width="50%"]
+|============
+|Field Name   |Value
+|Domain    |0.0.0.0
+|Local Port    |8081
+|Remote Port    |8081
+|Path    |authorize
+|============
++
+
+. Save configuration. Your configuration should look like:
++
+```xml
+<slack:oauth2-type name="Slack__OAuth2_Configuration" consumerKey="${clientID}" consumerSecret="
+${consumeSecret}" doc:name="Slack: OAuth2 Configuration">
+        <slack:oauth-callback-config domain="0.0.0.0" localPort="8081" remotePort="8081" path="auth"/>
+</slack:oauth2-type>
+```
++
+. To authorize a user in your Mule application, you should create a flow like the following calling the "authorize" operation:
++
+```xml
+<http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081"  doc:name="HTTP Listener Configuration"/>
+<flow name="slack-oauth2Flow">
+  <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP"/>
+  <slack:authorize config-ref="Slack__OAuth2_Configuration" doc:name="Slack"/>
+</flow>
+```
+. Then in a browser enter to http://localhost:8081/authorize and authorize your user.
+
+=== See Also
+
+ * For more information about the Slack API: https://api.slack.com/methods

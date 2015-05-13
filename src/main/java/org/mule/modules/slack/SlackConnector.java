@@ -601,8 +601,7 @@ public class SlackConnector {
      * @throws Exception
      */
     @Source(friendlyName = "Retrieve messages")
-    @MetaDataScope(AllChannelCategory.class)
-    public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @MetaDataKeyParam @FriendlyName("Channel ID") String channelID) throws Exception {
+    public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
         MessageRetriever messageRetriever = getMessageVerifierForChannel(channelID);
 

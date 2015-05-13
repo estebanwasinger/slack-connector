@@ -7,6 +7,7 @@ package org.mule.modules.slack.strategy;
 
 
 import org.mule.api.annotations.Configurable;
+import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.oauth.*;
 import org.mule.modules.slack.client.SlackClient;
 
@@ -31,6 +32,7 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
      */
     @Configurable
     @OAuthConsumerKey
+    @FriendlyName("Client ID")
     private String consumerKey;
 
     /**
@@ -38,6 +40,7 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
      */
     @Configurable
     @OAuthConsumerSecret
+    @FriendlyName("Client Secret")
     private String consumerSecret;
 
     @OAuthPostAuthorization
