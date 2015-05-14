@@ -1,0 +1,32 @@
+= Anypoint™ Slack Connector Release Notes
+
+
+== References:
+
+- *Supported Mule ESB versions*: 3.5 and  3.6
+- *Connector Doc*: http://estebanwasinger.github.io/slack-connector/
+
+== Slack Connector Release Notes
+
+=== Contents
+
+- Features
+- Fixed in this Release
+- Known Issues
+- Support Resources
+
+Release Notes for version 1.0.0 of the *Slack connector*. These Release Notes accompany the http://estebanwasinger.github.io/slack-connector/ guide.
+
+=== Features
+
+. Post messages
+. Source method to retrieve messages in real time
+. Upload files
+. Channels management
+.. User invitation/kicking
+.. Renaming
+
+
+=== Known Issues
+
+The connectors doesn't support search feature.

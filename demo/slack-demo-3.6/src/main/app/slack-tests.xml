@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:slack="http://www.mulesoft.org/schema/mule/slack" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+      xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/slack http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
@@ -17,11 +17,11 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <data-mapper:config name="MessageResponse_To_JSON_1" transformationGraphPath="messageresponse_to_json_1.grf" doc:name="MessageResponse_To_JSON_1"/>
     <twitter:config name="Twitter__Configuration" accessKey="${twitter.accessKey}" accessSecret="${twitter.accessSecret}" consumerKey="${twitter.consumerKey}" consumerSecret="${twitter.consumerSecret}" doc:name="Twitter: Configuration"/>
     <flow name="slack-testsFlow1">
-        <slack:retrieve-messages config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.general}" doc:name="Slack (Streaming)" messageRetrieverInterval="1000"/>
+        <slack:retrieve-messages config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" doc:name="Slack (Streaming)" messageRetrieverInterval="1000"/>
         <expression-filter expression="#[!(payload.user == null)]" doc:name="Expression"/>
         <choice doc:name="Choice">
             <when expression="#[payload.text.contains(&quot;help&quot;)]">
-                <slack:post-message config-ref="Slack__Connection_Managament_type_strategy"  doc:name="Slack" channelId="${channel.general}" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ_400x400.png" message="This is a bot helper message!" username="Mule ESB Slack Bot"/>
+                <slack:post-message config-ref="Slack__Connection_Managament_type_strategy"  doc:name="Slack" channelId="${channel.id}" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ_400x400.png" message="This is a bot helper message!" username="Mule ESB Slack Bot"/>
             </when>
             <otherwise>
                 <logger message="#[payload.text]" level="INFO" doc:name="Logger"/>
@@ -31,11 +31,11 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <flow name="slack-testsFlow2">
         <file:inbound-endpoint path="${folder.path}" responseTimeout="10000" doc:name="File"/>
         <logger message="#[payload]" level="INFO" doc:name="Logger"/>
-        <slack:upload-file-as-input-streams config-ref="Slack__Connection_Managament_type_strategy" channelID="C03NE28RU" fileName="#[message.inboundProperties.originalFilename]" initialComment="#[message.inboundProperties.directory]" doc:name="Slack"/>
+        <slack:upload-file-as-input-streams config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" fileName="#[message.inboundProperties.originalFilename]" initialComment="#[message.inboundProperties.directory]" doc:name="Slack"/>
     </flow>
     <flow name="slack-testsFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP"/>
-        <slack:post-message config-ref="Slack__Connection_Managament_type_strategy" channelId="C03NE28RU" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ.png" username="Mr. Mule" message="#[message.inboundProperties['http.query.params'].get('message')]" doc:name="Slack" />
+        <slack:post-message config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ.png" username="Mr. Mule" message="#[message.inboundProperties['http.query.params'].get('message')]" doc:name="Slack" />
         <data-mapper:transform config-ref="MessageResponse_To_JSON" doc:name="MessageResponse To JSON"/>
     </flow>
     <flow name="slack-testsFlow4">
@@ -45,7 +45,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
             </twitter:keywords>
         </twitter:filtered-stream>
         <logger message="#[payload.text + &quot;  &quot; + payload.user.name + &quot;  &quot; + payload.user.screenname]" level="INFO" doc:name="Logger"/>
-        <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.general}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" doc:name="Slack">
+        <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" doc:name="Slack">
             <slack:chat-attachment color="#489fd7" text="#[payload.text]"/>
             <slack:field title="Tweet Author" value="#[payload.user.name]"/>
         </slack:post-message-with-attachment>

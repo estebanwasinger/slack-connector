@@ -22,6 +22,50 @@
     </properties>
 
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <!-- custom shade configuration -->
+                    <artifactSet>
+                        <includes>
+                            <include>junit:junit</include>
+                            <include>org.glassfish.jersey.core:jersey-client</include>
+                            <include>org.glassfish.jersey.core:jersey-common</include>
+                            <include>javax.ws.rs:javax.ws.rs-api</include>
+                            <include>org.glassfish.jersey.media:jersey-media-multipart</include>
+                            <include>org.slf4j:slf4j-api</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>junit</pattern>
+                            <shadedPattern>junit.shaded</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.glassfish.jersey</pattern>
+                            <shadedPattern>org.glassfish.jersey.shaded</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>javax.ws.rs</pattern>
+                            <shadedPattern>javax.ws.rs.shaded</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.slf4j</pattern>
+                            <shadedPattern>org.slf4j.shaded</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+            </plugin>
+
+            <!-- Other plugins -->
+        </plugins>
+    </build>
+
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -32,6 +76,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+            <version>2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-common</artifactId>
             <version>2.11</version>
         </dependency>
         <dependency>
@@ -50,19 +99,9 @@
             <version>1.7.12</version>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20140107</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>org.mule.tools.devkit</groupId>

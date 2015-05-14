@@ -1,0 +1,25 @@
+
+# Slack Connector
+
+Slack is a team communication tool that provides a quick and easy way to communicate with your teammates.
+
+## Configuring the Slack Connector
+*In case that you don't have a Slack Account, please create a new one in https://slack.com/.*
+
+### Connection Management
+
+. Go to https://api.slack.com/web and look for your instance Token and copy the value.
+. Go back to *Anypoint Studio* and create a new Slack Connector configuration.
+. Select the *Connection Management type strategy*
+. The only configuration that you will need to configure is the *Access Token* copied from the first point.
+. Make a *Test Connection...* to check that the configuration is correct.
+. Ready to use!
+
+### OAuth2
+
+. Go to https://api.slack.com/applications and create an application if you don't have one.
+. Complete the Name and the Redirect URI(s). For redirect URI you need to specify where your application will callback in an authorization request. For this example complete it with http://0.0.0.0:8081/authorize
+. Once you have your Application, go to Application Details a save the values of *Client ID* and *Client Secret*.
+. Go back to *Anypoint Studio* and in a Anypoint Mule Application create a new Slack Connector configuration.
+. Select the *OAuth2 type strategy*
+. Fill the Consumer Key with 

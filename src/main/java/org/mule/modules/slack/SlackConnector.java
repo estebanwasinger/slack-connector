@@ -6,6 +6,7 @@
 package org.mule.modules.slack;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.log4j.Logger;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.display.Path;
@@ -37,9 +38,6 @@ import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
 import org.mule.modules.slack.strategy.OAuth2ConnectionStrategy;
 import org.mule.modules.slack.strategy.SlackConnectionStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 import java.io.InputStream;
@@ -54,7 +52,7 @@ import java.util.List;
 @Connector(name = "slack", friendlyName = "Slack", minMuleVersion = "3.5.0")
 public class SlackConnector {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlackConnector.class);
+    private static final Logger logger = Logger.getLogger(SlackConnector.class);
 
     @ConnectionStrategy
     SlackConnectionStrategy connectionStrategy;
@@ -65,6 +63,10 @@ public class SlackConnector {
 
     /**
      * This processor returns information about a team member.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-user-info}
+     *
      * @param id ID of the desired User
      * @return The desired User
      * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException
@@ -80,6 +82,10 @@ public class SlackConnector {
 
     /**
      * This processor returns information about a team member.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-user-info-by-name}
+     *
      * @param username Username of the desired User
      * @return The desired User
      * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException
@@ -88,13 +94,16 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "User - Info by name")
     @Summary("This processor returns information about a team member.")
-    @MetaDataScope(UserCategory.class)
-    public User getUserInfoByName(@MetaDataKeyParam @Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
+    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
         return slack().getUserInfoByName(username);
     }
 
     /**
      * This processor returns a list of all users in the team. This includes deleted/deactivated users.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-user-list}
+     *
      * @return List of Slack Users
      */
 
@@ -111,6 +120,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a list of all channels in the team. This includes channels the caller is in, channels they are not currently in, and archived channels. The number of (non-deactivated) members in each channel is also returned.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-channel-list}
+     *
      * @return List of Slack Channels
      */
 
@@ -123,6 +136,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a portion of messages/events from the specified channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-channel-history}
+     *
      * @param channelId       Channel to fetch history for
      * @param latestTimestamp End of time range of messages to include in results. Leave it blank to select current time.
      * @param oldestTimestamp Start of time range of messages to include in results. Leave it blank for timestamp 0
@@ -139,13 +156,17 @@ public class SlackConnector {
     }
 
     /**
-     * This processor returns information about a team channel specifyng the ID.
+     * This processor returns information about a team channel specifying the ID.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-channel-info}
+     *
      * @param channelId Channel to get info on
      * @return A Channel
      */
 
     @OAuthProtected
-    @Summary("This processor returns information about a team channel specifyng the ID.")
+    @Summary("This processor returns information about a team channel specifying the ID.")
     @Processor(friendlyName = "Channel - Info")
     @MetaDataScope(ChannelCategory.class)
     public Channel getChannelInfo(@Summary("Channel to get info on") @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
@@ -155,6 +176,10 @@ public class SlackConnector {
 
     /**
      * This processor returns information about a team channel specifyng the name.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-channel-by-name}
+     *
      * @param channelName Channel name to get info on
      * @return A Channel
      */
@@ -167,6 +192,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to create a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:create-channel}
+     *
      * @param channelName Name of channel to create
      * @return A Channel
      */
@@ -180,6 +209,10 @@ public class SlackConnector {
 
     /**
      * This method renames a team channel. The only people who can rename a channel are team admins, or the person that originally created the channel. Others will recieve a "not_authorized" error.
+     *
+     *{@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:rename-channel}
+     *
      * @param channelId   Channel to rename
      * @param channelName New channel name
      * @return A Channel
@@ -195,6 +228,10 @@ public class SlackConnector {
 
     /**
      * This method is used to join a channel. If the channel does not exist, it is created.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:join-channel}
+     *
      * @param channelName Name of the channel to Join
      * @return If successful, the command returns a channel object, including state information:
      */
@@ -208,6 +245,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to leave a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:leave-channel}
+     *
      * @param channelId ID of the channel to Leave
      * @return Boolean result. This method will not return an error if the user was not in the channel before it was called.
      */
@@ -222,6 +263,10 @@ public class SlackConnector {
 
     /**
      * This processor archives a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:archive-channel}
+     *
      * @param channelID ID of the Channel to Archive
      * @return Boolean result
      */
@@ -235,6 +280,10 @@ public class SlackConnector {
 
     /**
      * This processor unarchives a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:unarchive-channel}
+     *
      * @param channelID ID of the Channel to Unarchive
      * @return Boolean result
      */
@@ -247,6 +296,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to change the topic of a channel. The calling user must be a member of the channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:set-channel-topic}
+     *
      * @param channelID ID of the channel to change the topic
      * @param topic     New channel topic
      * @return Boolean result
@@ -260,6 +313,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to change the purpose of a channel. The calling user must be a member of the channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:set-channel-purpose}
+     *
      * @param channelID ID of the channel to change the purpose
      * @param purpose New channel purpose
      * @return Boolean result
@@ -278,6 +335,10 @@ public class SlackConnector {
 
     /**
      * This processor posts a message to a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:post-message}
+     *
      * @param message Message to post
      * @param channelId ID of the channel to post the message
      * @param username Name to show in the message
@@ -294,6 +355,10 @@ public class SlackConnector {
 
     /**
      * This processor post a message with attachments in a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:post-message-with-attachment}
+     *
      * @param message Message to post
      * @param channelId ID of the channel to post the message
      * @param username Name to show in the message
@@ -315,6 +380,10 @@ public class SlackConnector {
 
     /**
      * This processor deletes a message from a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:delete-message}
+     *
      * @param timeStamp TimeStamp of the message to delete
      * @param channelId ID of the channel of the message
      * @return Boolean
@@ -328,6 +397,10 @@ public class SlackConnector {
 
     /**
      * This processor updates a message in a channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:update-message}
+     *
      * @param timeStamp TimeStamp of the message to delete
      * @param channelId ID of the channel of the message
      * @param message New message
@@ -346,6 +419,10 @@ public class SlackConnector {
 
     /**
      * This processor opens a direct message channel with another member of your Slack team.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:open-direct-message-channel}
+     *
      * @param userId User ID to open a direct message channel with.
      * @return DirectMessageChannelCreationResponse. If the channel was already open the response will include no_op and already_open properties:
      */
@@ -357,7 +434,11 @@ public class SlackConnector {
     }
 
     /**
-     * closes a direct message channel.
+     * Closes a direct message channel.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:close-direct-message-channel}
+     *
      * @param channelId Direct message channel ID to close.
      * @return Boolean result
      */
@@ -370,6 +451,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a list of all im channels that the user has.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:list-direct-message-channels}
+     *
      * @return List of the available Direct message channels
      */
     @OAuthProtected
@@ -380,6 +465,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a portion of messages/events from the specified direct message channel. To read the entire history for a direct message channel, call the method with no latest or oldest arguments.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-d-m-history}
+     *
      * @param channelID       Channel to fetch history for
      * @param latestTimestamp End of time range of messages to include in results. Leave it blank to select current time.
      * @param oldestTimestamp Start of time range of messages to include in results. Leave it blank for timestamp 0
@@ -400,6 +489,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a list of groups in the team that the caller is in and archived groups that the caller was in. The list of (non-deactivated) members in each group is also returned.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-group-list}
+     *
      * @return A list of the available Groups
      */
     @OAuthProtected
@@ -410,6 +503,10 @@ public class SlackConnector {
 
     /**
      * This processor returns a portion of messages/events from the specified private group. To read the entire history for a group, call the method with no latest or oldest arguments.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-group-history}
+     *
      * @param groupID Group to fetch history for
      * @param latestTimestamp End of time range of messages to include in results. Leave it blank to select current time.
      * @param oldestTimestamp Start of time range of messages to include in results. Leave it blank for timestamp 0
@@ -426,6 +523,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to change the topic of a private group. The calling user must be a member of the private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:set-group-topic}
+     *
      * @param channelID ID of the group to set the new topic
      * @param topic The new topic
      * @return Boolean result
@@ -439,6 +540,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to change the purpose of a private group. The calling user must be a member of the private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:set-group-purpose}
+     *
      * @param channelID ID of the group to set the new purpose
      * @param purpose The new group purpose
      * @return Boolean result
@@ -452,6 +557,10 @@ public class SlackConnector {
 
     /**
      * This processor creates a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:create-group}
+     *
      * @param groupName Name of the group to create
      * @return If successful, the command returns a group object, including state information.
      */
@@ -463,6 +572,10 @@ public class SlackConnector {
 
     /**
      * This processor closes a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:close-group}
+     *
      * @param channelID ID of the group to close
      * @return Boolean result
      */
@@ -475,6 +588,10 @@ public class SlackConnector {
 
     /**
      * This processor opens a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:open-group}
+     *
      * @param channelID ID of the group to open
      * @return Boolean result
      */
@@ -487,6 +604,10 @@ public class SlackConnector {
 
     /**
      * This processor archives a private group.
+     *
+     *{@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:archive-group}
+     *
      * @param channelID ID of the group to archive
      * @return Boolean result
      */
@@ -499,6 +620,10 @@ public class SlackConnector {
 
     /**
      * This processor unarchives a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:unarchive-group}
+     *
      * @param channelID ID of the group to unarchive
      * @return Boolean result
      */
@@ -511,6 +636,10 @@ public class SlackConnector {
 
     /**
      * This processor renames a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:rename-group}
+     *
      * @param groupId ID of the group to rename
      * @param groupName Channel
      * @return Group
@@ -524,6 +653,10 @@ public class SlackConnector {
 
     /**
      * This processor returns information about a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:get-group-info}
+     *
      * @param channelId ID of the group to get info on
      * @return Group
      */
@@ -537,6 +670,10 @@ public class SlackConnector {
 
     /**
      * This processor is used to leave a private group.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:leave-group}
+     *
      * @param channelId ID of the group to leave
      * @return Boolean result
      */
@@ -553,6 +690,10 @@ public class SlackConnector {
 
     /**
      * This processor allows you to create or upload an existing file.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:upload-file}
+     *
      * @param channelID ID of the channel to upload a file
      * @param fileName File name
      * @param fileType File type
@@ -571,6 +712,10 @@ public class SlackConnector {
 
     /**
      * This processor allows you to create or upload an existing file.
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:upload-file-as-input-streams}
+     *
      * @param channelID ID of the channel to upload a file
      * @param fileName File name
      * @param fileType File type
@@ -594,6 +739,10 @@ public class SlackConnector {
 
     /**
      * This Source retrieves messages from the desired channel, private group or direct message channel
+     *
+     * {@sample.xml ../../../doc/slack-connector.xml.sample
+     * slack:retrieve-messages}
+     *
      * @param source SourceCallback
      * @param messageRetrieverInterval Pool interval
      * @param channelID ID of the channel/group/DMC to poll messages
@@ -603,7 +752,6 @@ public class SlackConnector {
     @Source(friendlyName = "Retrieve messages")
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
-        MessageRetriever messageRetriever = getMessageVerifierForChannel(channelID);
 
         if (getConnectionStrategy().getClass().equals(OAuth2ConnectionStrategy.class)) {
             while (true) {
@@ -617,7 +765,7 @@ public class SlackConnector {
             logger.debug("Waiting authorization!");
         }
 
-        //logger.info("Started retrieving messages of channel: "+slack().getChannelById(channelID).getName() +"!");
+        MessageRetriever messageRetriever = getMessageVerifierForChannel(channelID);
 
         oldestTimeStamp = messageRetriever.retrieve(slack(), channelID, null, null, "1").get(0).getTs();
 
@@ -642,14 +790,17 @@ public class SlackConnector {
 
     private MessageRetriever getMessageVerifierForChannel(String channelID) throws Exception {
         if (channelID.toLowerCase().toLowerCase().startsWith("g")) {
+            logger.info("Started retrieving messages of channel: "+slack().getGroupInfo(channelID).getName() +"!");
             return new GroupMessageRetriever();
         }
 
         if (channelID.toLowerCase().toLowerCase().startsWith("c")) {
+            logger.info("Started retrieving messages of channel: "+slack().getChannelById(channelID).getName() +"!");
             return new ChannelMessageRetriever();
         }
 
         if (channelID.toLowerCase().toLowerCase().startsWith("d")) {
+            logger.info("Started retrieving messages of direct message channel!");
             return new DirectMessageRetriever();
         }
 
