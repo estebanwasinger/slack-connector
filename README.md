@@ -4,6 +4,9 @@
 - Mule 3.6
 - Mule 3.5
 
+# Documentation
+http://estebanwasinger.github.io/slack-connector/
+
 # Installation 
 1. Clone this Slack SDK repository: **git clone https://github.com/estebanwasinger/slack-sdk**
 2. Clone the connector repository: **git clone https://github.com/estebanwasinger/slack-connector**
