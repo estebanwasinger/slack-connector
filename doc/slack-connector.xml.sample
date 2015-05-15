@@ -7,11 +7,11 @@
 <!-- END_INCLUDE(slack:unauthorize) -->
 
 <!-- BEGIN_INCLUDE(slack:get-user-info) -->
-            <slack:get-user-info config-ref="Slack__Connection_Managament_type_strategy" id="${userID}" doc:name="Slack"/>
+            <slack:get-user-info config-ref="Slack__Connection_Managament_type_strategy" id="${userID}" />
 <!-- END_INCLUDE(slack:get-user-info) -->
 
 <!-- BEGIN_INCLUDE(slack:get-user-info-by-name) -->
-            <slack:get-user-info config-ref="Slack__Connection_Managament_type_strategy" id="${username}" doc:name="Slack"/>
+            <slack:get-user-info config-ref="Slack__Connection_Managament_type_strategy" id="${username}" />
 <!-- END_INCLUDE(slack:get-user-info-by-name) -->
 
 <!-- BEGIN_INCLUDE(slack:get-user-list) -->
@@ -71,11 +71,11 @@
 <!-- END_INCLUDE(slack:set-channel-purpose) -->
 
 <!-- BEGIN_INCLUDE(slack:post-message) -->
-            <slack:post-message config-ref="Slack__Connection_Managament_type_strategy"  doc:name="Slack" channelId="${channel.id}" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ_400x400.png" message="This is a bot helper message!" username="Mule ESB Slack Bot"/>
+            <slack:post-message config-ref="Slack__Connection_Managament_type_strategy"   channelId="${channel.id}" iconURL="https://pbs.twimg.com/profile_images/504738267510501376/9zpJ4eIZ_400x400.png" message="This is a bot helper message!" username="Mule ESB Slack Bot"/>
 <!-- END_INCLUDE(slack:post-message) -->
 
 <!-- BEGIN_INCLUDE(slack:post-message-with-attachment) -->
-            <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" doc:name="Slack">
+            <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" >
                 <slack:chat-attachment color="#489fd7" text="This is a tweet"/>
                 <slack:field title="Tweet Author" value="Username"/>
             </slack:post-message-with-attachment>
@@ -138,7 +138,7 @@
 <!-- END_INCLUDE(slack:archive-group) -->
 
 <!-- BEGIN_INCLUDE(slack:retrieve-messages) -->
-	<slack:retrieve-messages config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" doc:name="Slack (Streaming)" messageRetrieverInterval="1000"/>
+	<slack:retrieve-messages config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" messageRetrieverInterval="1000"/>
 <!-- END_INCLUDE(slack:retrieve-messages) -->
 
 <!-- BEGIN_INCLUDE(slack:unarchive-group) -->
@@ -162,6 +162,6 @@
 <!-- END_INCLUDE(slack:upload-file) -->
 
 <!-- BEGIN_INCLUDE(slack:upload-file-as-input-streams) -->
-	<slack:upload-file-as-input-streams config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" fileName="#[message.inboundProperties.originalFilename]" initialComment="#[message.inboundProperties.directory]" doc:name="Slack"/>
+	<slack:upload-file-as-input-streams config-ref="Slack__Connection_Managament_type_strategy" channelID="${channel.id}" fileName="#[message.inboundProperties.originalFilename]" initialComment="#[message.inboundProperties.directory]" />
 <!-- END_INCLUDE(slack:upload-file-as-input-streams) -->
 

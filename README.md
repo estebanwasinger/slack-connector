@@ -2,7 +2,7 @@
 
 # Mule supported versions
 - Mule 3.6
-- Mule 3.5 *(Not Tested)*
+- Mule 3.5
 
 # Installation 
 1. Clone this Slack SDK repository: **git clone https://github.com/estebanwasinger/slack-sdk**

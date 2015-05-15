@@ -69,7 +69,7 @@ public class SlackConnector {
      *
      * @param id ID of the desired User
      * @return The desired User
-     * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException
+     * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException When the user doesn't exist
      */
 
     @OAuthProtected
@@ -88,7 +88,7 @@ public class SlackConnector {
      *
      * @param username Username of the desired User
      * @return The desired User
-     * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException
+     * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException When the user doesn't exist
      */
 
     @OAuthProtected
@@ -701,7 +701,7 @@ public class SlackConnector {
      * @param initialComment Message initial comment
      * @param filePath Path of the file to upload
      * @return File Upload Response
-     * @throws IOException
+     * @throws IOException When the selected file doesn't exist
      */
     @OAuthProtected
     @Processor(friendlyName = "File - Upload")
@@ -723,7 +723,7 @@ public class SlackConnector {
      * @param initialComment Message initial comment
      * @param inputStream Input stream of the file to upload
      * @return File upload Response
-     * @throws IOException
+     * @throws IOException When the selected inputStream doesn't exist
      */
     @OAuthProtected
     @Processor(friendlyName = "File - Upload as Input Stream")
@@ -747,7 +747,7 @@ public class SlackConnector {
      * @param messageRetrieverInterval Pool interval
      * @param channelID ID of the channel/group/DMC to poll messages
      * @return Messages
-     * @throws Exception
+     * @throws Exception When the SourceCallback fails processing the messages
      */
     @Source(friendlyName = "Retrieve messages")
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {

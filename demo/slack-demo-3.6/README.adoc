@@ -1,0 +1,42 @@
+= Slack Connector Demo
+
+## Pre-requisites
+. Slack Account
+. Twitter Account _(Optional. Required for Twitter-Slack integration)_
+. Mule Server 3.6.X EE
+
+## Preparation
+. Import this DEMO in Anypoint Studio going to *File* -> *Import...* -> *Anypoint Studio Project from External Localtion*, select the demo project root and choose as server runtime *Mule Server 3.6.x EE*.
+. Once imported, in *src/main/app* you will find *mule-app.properties* file, this contains all the placeholders for the required properties to make the DEMO work. Open it. It will be like the following:
++
+```
+#Channel ID of some channel of the Slack instance
+channel.id=
+#Slack Token
+slack.token=
+#Path to folder to upload files
+folder.path=
+#Twitter Credentials
+twitter.accessKey=
+twitter.accessSecret=
+twitter.consumerKey=
+twitter.consumerSecret=
+```
++
+Fill each property with the required value:
++
+[options="header",width="50%"]
+|============
+|Field Name   |Value
+|Channel ID    | ID of some channel. To get the ID, go to https://api.slack.com/methods/chat.postMessage/test and click in "#general", this will get you an ID.
+|Slack Token | Token of the Slack Instance. To get the token, go to https://api.slack.com/web
+|Folder Path    | Path to an Empty folder.
+|Twitter Credentials | To get your Twitter credentials, go to https://apps.twitter.com/ , in case that you don't have an application, create a new one and get the required properties defined in the file.
+|============
++
+. In *Anypoint Studio*, Right click in the project folder -> Run As -> Mule Application.
+. If the Mule App is deployed correctly, you can start playing with this app:
+.. *Posting a message*: Insert this URL in a browser: *http://localhost:8081/test?message=MyMessageToSend*, the message will be sent to the configured channel.
+.. *Sending a File*: Copy a File to the configured "folder.path", and this will be automatically sent to the configured channel.
+.. *Helper bot*: Send a message to the configured channel, with the word "Help", the bot automatically will send a message in callback to the yours.
+.. *Twitter Integration*: Post a tweet in your account containing the "mulesoft" word, this tweet will be automatically be published in the configured channel.
