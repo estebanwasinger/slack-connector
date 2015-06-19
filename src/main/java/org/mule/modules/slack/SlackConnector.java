@@ -76,7 +76,7 @@ public class SlackConnector {
     @Processor(friendlyName = "User - Info")
     @Summary("This processor returns information about a team member.")
     @MetaDataScope(UserCategory.class)
-    public User getUserInfo(@MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) throws UserNotFoundException {
+    public User getUserInfo(@MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) {
         return slack().getUserInfo(id);
     }
 
@@ -94,7 +94,7 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "User - Info by name")
     @Summary("This processor returns information about a team member.")
-    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
+    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException{
         return slack().getUserInfoByName(username);
     }
 

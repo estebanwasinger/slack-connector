@@ -19,7 +19,6 @@ import org.mule.modules.slack.client.exceptions.SlackException;
 import org.mule.modules.slack.client.exceptions.UserNotFoundException;
 import org.mule.modules.slack.client.model.User;
 import org.mule.modules.slack.client.model.channel.Channel;
-import org.mule.modules.slack.client.model.channel.Purpose;
 import org.mule.modules.slack.client.model.chat.Message;
 import org.mule.modules.slack.client.model.chat.MessageResponse;
 import org.mule.modules.slack.client.model.chat.attachment.ChatAttachment;
@@ -27,8 +26,6 @@ import org.mule.modules.slack.client.model.chat.attachment.Field;
 import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
-import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
-import org.mule.tools.devkit.ctf.exceptions.MethodExecutionFailedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,7 +70,7 @@ public class SlackTestCases extends TestParent{
     @Test
     public void testGetChannelInfo(){
         Channel channel = getConnector().getChannelInfo(CHANNEL_ID);
-        Assert.assertEquals(channel.getName(),CHANNEL_NAME);
+        Assert.assertEquals(channel.getName(), CHANNEL_NAME);
     }
 
     @Category({ RegressionSuite.class })
@@ -98,7 +95,7 @@ public class SlackTestCases extends TestParent{
     }
 
     @Category({ RegressionSuite.class })
-    @Test(expected = MethodExecutionFailedException.class)
+    @Test(expected = SlackException.class)
     public void testGetBadChannelInfo(){
         getConnector().getChannelInfo("321321");
     }
@@ -109,7 +106,7 @@ public class SlackTestCases extends TestParent{
         String date = getDateString();
         getConnector().setChannelPurpose(CHANNEL_ID,date);
         String purpose = getConnector().getChannelInfo(CHANNEL_ID).getPurpose().getValue();
-        assertEquals(purpose,date);
+        assertEquals(purpose, date);
     }
 
     @Category({ RegressionSuite.class })
@@ -149,8 +146,8 @@ public class SlackTestCases extends TestParent{
     }
 
     @Category({ RegressionSuite.class })
-    @Test(expected = MethodExecutionFailedException.class)
-    public void testRetrieveUserInfoFailure() throws UserNotFoundException {
+    @Test(expected = SlackException.class)
+    public void testRetrieveUserInfoFailure() {
         getConnector().getUserInfo("sdadsa");
     }
 
