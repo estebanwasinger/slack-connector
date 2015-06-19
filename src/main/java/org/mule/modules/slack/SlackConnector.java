@@ -54,7 +54,7 @@ public class SlackConnector {
 
     private static final Logger logger = Logger.getLogger(SlackConnector.class);
 
-    @ConnectionStrategy
+    @Config
     SlackConnectionStrategy connectionStrategy;
 
     //***********
