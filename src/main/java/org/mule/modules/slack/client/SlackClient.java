@@ -15,7 +15,6 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mule.modules.slack.client.exceptions.ChannelNotFoundException;
-import org.mule.modules.slack.client.exceptions.SlackException;
 import org.mule.modules.slack.client.exceptions.UserNotFoundException;
 import org.mule.modules.slack.client.model.User;
 import org.mule.modules.slack.client.model.channel.Channel;
@@ -26,16 +25,13 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.client.utils.Sort;
 
-import javax.sound.sampled.LineEvent;
 import javax.ws.rs.client.WebTarget;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.Boolean;
 import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -568,6 +564,14 @@ public class SlackClient {
         String stringResponse = SlackRequester.sendAttachmentRequest(webTarget,file);
 
         return mapper.fromJson(new JSONObject(stringResponse).getJSONObject("file").toString(),FileUploadResponse.class);
+    }
+
+    //******************
+    // Util methods
+    //******************
+
+    public void searchMessages(String query, Sort sort){
+
     }
 
     //******************
