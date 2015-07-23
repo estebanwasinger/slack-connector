@@ -66,6 +66,15 @@
     </build>
 
 
+    <profiles>
+        <profile>
+            <id>functionalTestingOutputDir</id>
+            <build>
+                <directory>${project.basedir}/target/functionalTesting</directory>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
