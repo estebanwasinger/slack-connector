@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mule.modules.slack.RegressionSuite;
 import org.mule.modules.slack.TestParent;
-import org.mule.modules.slack.client.SlackClient;
 import org.mule.modules.slack.client.exceptions.SlackException;
 import org.mule.modules.slack.client.exceptions.UserNotFoundException;
 import org.mule.modules.slack.client.model.User;
@@ -35,7 +34,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -269,27 +267,12 @@ public class SlackTestCases extends TestParent{
         assertEquals(newMessage,message.getText());
     }
 
-    // TODO Not supported by the Connector Testing Framework
-    /* @Category({ RegressionSuite.class })
-    @Test
-    public void testUploadFileAsInputStream() throws IOException {
-        String text = "Text as inputStream";
-        InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-        FileUploadResponse fileUploadResponse = getConnector().uploadFileAsInputStreams(CHANNEL_ID, null, null, null, null, stream);
-        assertEquals(text,fileUploadResponse.getPreview());
-    }*/
-
     @Category({ RegressionSuite.class })
     @Test
     public void testUploadFileAsInputStream() throws IOException {
-        Properties prop = new Properties();
-        InputStream in = getClass().getClassLoader().getResourceAsStream("slack-automation-credentials.properties");
-        prop.load(in);
-        String slackToken = (String) prop.get("config-type.accessToken");
-        SlackClient slackClient = new SlackClient(slackToken);
         String text = "Text as inputStream";
         InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-        FileUploadResponse fileUploadResponse = slackClient.sendFile(GROUP_ID, null, null, null, null, stream);
+        FileUploadResponse fileUploadResponse = getConnector().uploadFileAsInputStreams(GROUP_ID,null,null,null,null,stream);
         assertEquals(text,fileUploadResponse.getPreview());
     }
 
