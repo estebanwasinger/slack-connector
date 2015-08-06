@@ -34,9 +34,7 @@ import javax.ws.rs.client.WebTarget;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -275,17 +273,13 @@ public class SlackClient {
 
     public MessageResponse sendMessage(String message, String channelId, String username, String iconUrl, Boolean asUser) {
         WebTarget webTarget = null;
-        try {
-            webTarget = slackRequester.getWebTarget()
-                    .path(Operations.CHAT_POSTMESSAGE)
-                    .queryParam("channel", channelId)
-                    .queryParam("text", URLEncoder.encode(message, "UTF-8"))
-                    .queryParam("username", username)
-                    .queryParam("icon_url", iconUrl)
-                    .queryParam("as_user", String.valueOf(asUser));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        webTarget = slackRequester.getWebTarget()
+                .path(Operations.CHAT_POSTMESSAGE)
+                .queryParam("channel", channelId)
+                .queryParam("text", message)
+                .queryParam("username", username)
+                .queryParam("icon_url", iconUrl)
+                .queryParam("as_user", String.valueOf(asUser));
 
         String output = SlackRequester.sendRequest(webTarget);
 
