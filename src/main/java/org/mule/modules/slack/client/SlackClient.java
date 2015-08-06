@@ -25,13 +25,18 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.client.rtm.EventHandler;
+import org.mule.modules.slack.client.rtm.SlackMessageHandler;
 import org.mule.modules.slack.client.utils.Sort;
 
+import javax.websocket.DeploymentException;
 import javax.ws.rs.client.WebTarget;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +45,13 @@ public class SlackClient {
     private String token;
     private Gson mapper;
     private SlackRequester slackRequester;
+    private SlackMessageHandler slackMessageHandler;
+
+    public String getSelfId() {
+        return selfId;
+    }
+
+    private String selfId;
 
     public SlackClient(String token) {
         slackRequester = new SlackRequester(token);
@@ -262,13 +274,18 @@ public class SlackClient {
     //******************
 
     public MessageResponse sendMessage(String message, String channelId, String username, String iconUrl, Boolean asUser) {
-        WebTarget webTarget = slackRequester.getWebTarget()
-                .path(Operations.CHAT_POSTMESSAGE)
-                .queryParam("channel", channelId)
-                .queryParam("text", message)
-                .queryParam("username", username)
-                .queryParam("icon_url", iconUrl)
-                .queryParam("as_user", String.valueOf(asUser));
+        WebTarget webTarget = null;
+        try {
+            webTarget = slackRequester.getWebTarget()
+                    .path(Operations.CHAT_POSTMESSAGE)
+                    .queryParam("channel", channelId)
+                    .queryParam("text", URLEncoder.encode(message, "UTF-8"))
+                    .queryParam("username", username)
+                    .queryParam("icon_url", iconUrl)
+                    .queryParam("as_user", String.valueOf(asUser));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         String output = SlackRequester.sendRequest(webTarget);
 
@@ -572,6 +589,36 @@ public class SlackClient {
 
     public void searchMessages(String query, Sort sort){
 
+    }
+
+    //******************
+    // RTM
+    //******************
+
+    public String getWebSockerURI(){
+        WebTarget webTarget = slackRequester.getWebTarget().path(Operations.RTM_START);
+        String s = SlackRequester.sendRequest(webTarget);
+        selfId = new JSONObject(s).getJSONObject("self").getString("id");
+        return new JSONObject(s).getString("url");
+    }
+
+    public void startRealTimeCommunication(EventHandler messageHandler){
+        slackMessageHandler = new SlackMessageHandler(getWebSockerURI());
+        slackMessageHandler.messageHandler = messageHandler;
+        try {
+            slackMessageHandler.connect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DeploymentException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Ending!");
+    }
+
+    public SlackMessageHandler getSlackMessageHandler(){
+        return slackMessageHandler;
     }
 
     //******************

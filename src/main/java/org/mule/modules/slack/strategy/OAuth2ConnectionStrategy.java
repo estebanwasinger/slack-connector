@@ -100,6 +100,10 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
         return client;
     }
 
+    public String getToken() {
+        return getAccessToken();
+    }
+
     public Boolean isAuthorized() {
         if(accessToken == null){
             return false;

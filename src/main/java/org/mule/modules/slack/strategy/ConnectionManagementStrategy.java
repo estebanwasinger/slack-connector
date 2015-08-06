@@ -10,7 +10,6 @@ import org.mule.api.ConnectionExceptionCode;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.components.ConnectionManagement;
 import org.mule.api.annotations.param.ConnectionKey;
-import org.mule.api.annotations.param.Default;
 import org.mule.modules.slack.client.SlackClient;
 
 /**
@@ -71,6 +70,10 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
 
     public SlackClient getSlackClient() {
         return slack;
+    }
+
+    public String getToken() {
+        return accessToken;
     }
 
 

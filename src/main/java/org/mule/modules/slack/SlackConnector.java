@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.display.Path;
+import org.mule.api.annotations.display.Placement;
 import org.mule.api.annotations.display.Summary;
 import org.mule.api.annotations.oauth.OAuthProtected;
 import org.mule.api.annotations.param.Default;
@@ -28,6 +29,7 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.client.rtm.ConfigurableHandler;
 import org.mule.modules.slack.metadata.AllChannelCategory;
 import org.mule.modules.slack.metadata.ChannelCategory;
 import org.mule.modules.slack.metadata.GroupCategory;
@@ -38,8 +40,8 @@ import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
 import org.mule.modules.slack.strategy.OAuth2ConnectionStrategy;
 import org.mule.modules.slack.strategy.SlackConnectionStrategy;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -731,6 +733,22 @@ public class SlackConnector {
     public FileUploadResponse uploadFileAsInputStreams(@Summary("Channel ID to send the message") @FriendlyName("Channel ID") @MetaDataKeyParam String channelID, @Summary("File name to show in the Slack message") @Optional String fileName,
                                                        @Optional String fileType, @Summary("Message title") @Optional String title, @Optional String initialComment, @Summary("Input Stream Reference of where to look the file to upload") @Default("#[payload]") InputStream inputStream) throws IOException {
         return slack().sendFile(channelID, fileName, fileType, title, initialComment, inputStream);
+    }
+
+
+    @Source(friendlyName = "Retrieve all events")
+    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events Filters") @Optional Boolean messages, @Placement(group = "Messages Filters") @Optional Boolean directMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException {
+        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents)));
+        System.out.println("Ending!");
+        return null;
+    }
+
+    private Boolean falseIfNull(Boolean aBoolean) {
+        if(aBoolean == null){
+            return false;
+        }else {
+            return aBoolean;
+        }
     }
 
     //************

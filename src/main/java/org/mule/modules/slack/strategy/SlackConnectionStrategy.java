@@ -15,6 +15,8 @@ public interface SlackConnectionStrategy {
 
     public SlackClient getSlackClient();
 
+    public String getToken();
+
     public Boolean isAuthorized();
 
 }
