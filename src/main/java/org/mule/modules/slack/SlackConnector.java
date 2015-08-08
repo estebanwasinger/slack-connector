@@ -736,17 +736,17 @@ public class SlackConnector {
     }
 
 
-    @Source(friendlyName = "Retrieve all events")
-    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events Filters") @Optional Boolean messages, @Placement(group = "Messages Filters") @Optional Boolean directMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException {
-        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents)));
+    @Source(friendlyName = "Retrieve events")
+    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Optional Boolean messages, @Placement(group = "Events to accept") @Optional Boolean userTyping, @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Optional Boolean directMessages, @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Optional Boolean onlyNewMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException {
+        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents), falseIfNull(userTyping), falseIfNull(onlyNewMessages)));
         System.out.println("Ending!");
         return null;
     }
 
     private Boolean falseIfNull(Boolean aBoolean) {
-        if(aBoolean == null){
+        if (aBoolean == null) {
             return false;
-        }else {
+        } else {
             return aBoolean;
         }
     }

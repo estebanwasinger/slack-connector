@@ -1,50 +1,57 @@
 package org.mule.modules.slack.client.rtm;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.json.JSONObject;
 import org.mule.api.callback.SourceCallback;
 import org.mule.modules.slack.client.SlackClient;
-import org.mule.modules.slack.client.rtm.filter.DirectMessageFilter;
-import org.mule.modules.slack.client.rtm.filter.MessagesFilter;
+import org.mule.modules.slack.client.rtm.filter.EventObserver;
+import org.mule.modules.slack.client.rtm.filter.MessagesObserver;
+import org.mule.modules.slack.client.rtm.filter.OnlyTypeObserver;
 import org.mule.modules.slack.client.rtm.filter.SelfEventsFilter;
 
-import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConfigurableHandler implements EventHandler {
 
+    public static final String USER_TYPING_EVENT = "user_typing";
+    public static final String USER_FIELD = "user";
     SourceCallback sourceCallback;
-    Boolean onlyDMMessages;
     Boolean ignoreSelfEvents;
-    Boolean messages;
     SlackClient slackClient;
     Gson gson;
-    Type stringStringMap;
+    Class<? extends Map> stringStringMap = HashMap.class;
+    private final List<EventObserver> observerList;
 
 
-    public ConfigurableHandler(SourceCallback sourceCallback, SlackClient slackClient, Boolean messages, Boolean onlyDMMessages, Boolean ignoreSelfEvents) {
+    public ConfigurableHandler(SourceCallback sourceCallback, SlackClient slackClient, Boolean acceptMessages, Boolean onlyDMMessages, Boolean ignoreSelfEvents, Boolean userTyping, Boolean onlyNewMessages) {
         this.slackClient = slackClient;
-        this.messages = messages;
-        this.onlyDMMessages = onlyDMMessages;
-        this.ignoreSelfEvents = ignoreSelfEvents;
         this.sourceCallback = sourceCallback;
         gson = new Gson();
-        stringStringMap = new TypeToken<Map<String, String>>(){}.getType();
+        observerList = new ArrayList<EventObserver>();
+
+        if (acceptMessages) {
+            observerList.add(new MessagesObserver(sourceCallback, onlyDMMessages, onlyNewMessages));
+        }
+        if (userTyping) {
+            observerList.add(new OnlyTypeObserver(sourceCallback, USER_TYPING_EVENT));
+        }
+
     }
 
     public void onMessage(String message) {
-        JSONObject jsonObject = new JSONObject(message);
-        String channel = jsonObject.getString("channel");
-        String type = jsonObject.getString("type");
-        String user = jsonObject.getString("user");
 
-        if (DirectMessageFilter.filter(channel,onlyDMMessages) && MessagesFilter.filter(type, messages) && SelfEventsFilter.filter(user, slackClient.getSelfId(), ignoreSelfEvents)) {
-            try {
-                sourceCallback.process(gson.fromJson(message,stringStringMap));
-            } catch (Exception e) {
-                e.printStackTrace();
+        Map messageMap = gson.fromJson(message, stringStringMap);
+        if (SelfEventsFilter.filter((String) messageMap.get(USER_FIELD), slackClient.getSelfId(), ignoreSelfEvents)) {
+            for (EventObserver eventObserver : observerList) {
+                try {
+                    eventObserver.notify(messageMap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
 }

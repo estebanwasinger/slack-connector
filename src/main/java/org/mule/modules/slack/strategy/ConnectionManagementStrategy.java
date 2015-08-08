@@ -17,7 +17,7 @@ import org.mule.modules.slack.client.SlackClient;
  *
  * @author Esteban Wasinger.
  */
-@ConnectionManagement(configElementName = "config-type", friendlyName = "Connection Managament type strategy")
+@ConnectionManagement(configElementName = "config", friendlyName = "Token Configuration")
 public class ConnectionManagementStrategy implements SlackConnectionStrategy
 {
 
@@ -56,7 +56,7 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
      */
     @ValidateConnection
     public boolean isConnected() {
-       return slack == null ? false : true;
+       return slack != null;
     }
 
     /**
