@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.mule.tools.devkit</groupId>
         <artifactId>mule-devkit-parent</artifactId>
-        <version>3.7.0</version>
+        <version>3.7.1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -158,5 +158,11 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git://github.com:estebanwasinger/slack-connector.git</connection>
+        <developerConnection>scm:git:git@github.com:estebanwasinger/slack-connector.git</developerConnection>
+        <url>https://github.com/estebanwasinger/slack-connector</url>
+    </scm>
 
 </project>
