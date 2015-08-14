@@ -28,6 +28,7 @@ public class ConfigurableHandler implements EventHandler {
     public ConfigurableHandler(SourceCallback sourceCallback, SlackClient slackClient, Boolean acceptMessages, Boolean onlyDMMessages, Boolean ignoreSelfEvents, Boolean userTyping, Boolean onlyNewMessages) {
         this.slackClient = slackClient;
         this.sourceCallback = sourceCallback;
+        this.ignoreSelfEvents = ignoreSelfEvents;
         gson = new Gson();
         observerList = new ArrayList<>();
 
