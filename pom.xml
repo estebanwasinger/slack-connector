@@ -159,10 +159,10 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <scm>
-        <connection>scm:git:git://github.com:estebanwasinger/slack-connector.git</connection>
-        <developerConnection>scm:git:git@github.com:estebanwasinger/slack-connector.git</developerConnection>
-        <url>https://github.com/estebanwasinger/slack-connector</url>
-    </scm>
+        <scm>
+          <connection>scm:git:git://github.com:estebanwasinger/slack-connector.git</connection>
+          <developerConnection>scm:git:git@github.com:estebanwasinger/slack-connector.git</developerConnection>
+           <url>https://github.com/estebanwasinger/slack-connector</url>
+         </scm>
 
 </project>
