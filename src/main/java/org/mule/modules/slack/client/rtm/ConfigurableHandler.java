@@ -29,7 +29,7 @@ public class ConfigurableHandler implements EventHandler {
         this.slackClient = slackClient;
         this.sourceCallback = sourceCallback;
         gson = new Gson();
-        observerList = new ArrayList<EventObserver>();
+        observerList = new ArrayList<>();
 
         if (acceptMessages) {
             observerList.add(new MessagesObserver(sourceCallback, onlyDMMessages, onlyNewMessages));
@@ -48,7 +48,7 @@ public class ConfigurableHandler implements EventHandler {
                 try {
                     eventObserver.notify(messageMap);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException("Error notifying observer", e);
                 }
             }
         }

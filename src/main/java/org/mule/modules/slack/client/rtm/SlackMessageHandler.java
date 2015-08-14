@@ -7,13 +7,9 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 
-/**
- * Created by estebanwasinger on 8/1/15.
- */
 public class SlackMessageHandler implements MessageHandler.Whole<String> {
 
     private String webSocketUrl;
-    private Thread connectionMonitoringThread = null;
     private Session websocketSession;
     private long lastPingSent = 0;
     private volatile long lastPingAck = 0;
@@ -47,6 +43,7 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
     }
 
     public void onMessage(String message) {
+        System.out.println(message);
         if (message.contains("{\"type\":\"pong\",\"reply_to\"")) {
             int rightBracketIdx = message.indexOf('}');
             String toParse = message.substring(26, rightBracketIdx);
@@ -65,7 +62,7 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
     }
 
     private void startConnectionMonitoring() {
-        connectionMonitoringThread = new Thread() {
+        Thread connectionMonitoringThread = new Thread() {
             @Override
             public void run() {
                 while (true) {
@@ -86,10 +83,8 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
                         Thread.sleep(20000);
                     } catch (InterruptedException e) {
                         break;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (DeploymentException e) {
-                        e.printStackTrace();
+                    } catch (IOException | DeploymentException e) {
+                        throw new RuntimeException("Error in RTM Connection", e.getCause());
                     }
                 }
             }
