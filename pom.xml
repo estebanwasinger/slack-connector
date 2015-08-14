@@ -19,6 +19,7 @@
         <category>Community</category>
         <licensePath>LICENSE.md</licensePath>
         <devkit.studio.package.skip>false</devkit.studio.package.skip>
+        <jersey-client.version>2.11</jersey-client.version>
     </properties>
 
 
@@ -104,12 +105,12 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.11</version>
+            <version>${jersey-client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
-            <version>2.11</version>
+            <version>${jersey-client.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -119,7 +120,7 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
-            <version>2.11</version>
+            <version>${jersey-client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

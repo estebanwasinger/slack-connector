@@ -271,11 +271,10 @@ public class SlackClient {
     //******************
 
     public MessageResponse sendMessage(String message, String channelId, String username, String iconUrl, Boolean asUser) {
-        WebTarget webTarget = null;
-        webTarget = slackRequester.getWebTarget()
+        WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHAT_POSTMESSAGE)
                 .queryParam("channel", channelId)
-                .queryParam("text", message)
+                .queryParam("text",  UriComponent.encode(message, UriComponent.Type.QUERY_PARAM_SPACE_ENCODED))
                 .queryParam("username", username)
                 .queryParam("icon_url", iconUrl)
                 .queryParam("as_user", String.valueOf(asUser));
