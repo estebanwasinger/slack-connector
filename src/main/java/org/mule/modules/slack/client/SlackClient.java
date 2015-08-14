@@ -27,7 +27,6 @@ import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
 import org.mule.modules.slack.client.rtm.EventHandler;
 import org.mule.modules.slack.client.rtm.SlackMessageHandler;
-import org.mule.modules.slack.client.utils.Sort;
 
 import javax.websocket.DeploymentException;
 import javax.ws.rs.client.WebTarget;
@@ -581,9 +580,9 @@ public class SlackClient {
     // Util methods
     //******************
 
-    public void searchMessages(String query, Sort sort){
-
-    }
+//    public void searchMessages(String query, Sort sort){
+//
+//    }
 
     //******************
     // RTM
@@ -596,19 +595,14 @@ public class SlackClient {
         return new JSONObject(s).getString("url");
     }
 
-    public void startRealTimeCommunication(EventHandler messageHandler){
+    public void startRealTimeCommunication(EventHandler messageHandler) {
         slackMessageHandler = new SlackMessageHandler(getWebSockerURI());
         slackMessageHandler.messageHandler = messageHandler;
         try {
             slackMessageHandler.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DeploymentException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException | DeploymentException | InterruptedException e) {
+            throw new RuntimeException("Error in RTM communication", e.getCause());
         }
-        System.out.println("Ending!");
     }
 
     public SlackMessageHandler getSlackMessageHandler(){

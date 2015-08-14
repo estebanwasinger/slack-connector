@@ -38,8 +38,8 @@ import org.mule.modules.slack.retrievers.ChannelMessageRetriever;
 import org.mule.modules.slack.retrievers.DirectMessageRetriever;
 import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
-import org.mule.modules.slack.strategy.OAuth2ConnectionStrategy;
-import org.mule.modules.slack.strategy.SlackConnectionStrategy;
+import org.mule.modules.slack.config.SlackOAuth2Config;
+import org.mule.modules.slack.config.BasicSlackConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +57,7 @@ public class SlackConnector {
     private static final Logger logger = Logger.getLogger(SlackConnector.class);
 
     @Config
-    SlackConnectionStrategy connectionStrategy;
+    BasicSlackConfig slackConfig;
 
     //***********
     // Users methods
@@ -771,14 +771,14 @@ public class SlackConnector {
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
 
-        if (getConnectionStrategy().getClass().equals(OAuth2ConnectionStrategy.class)) {
+        if (getSlackConfig().getClass().equals(SlackOAuth2Config.class)) {
             while (true) {
                 logger.error("Retrieve Messages source doesn't work with OAuth 2 configuration, please use Connection Management");
                 Thread.sleep(5000);
             }
         }
 
-        while (!getConnectionStrategy().isAuthorized()) {
+        while (!getSlackConfig().isAuthorized()) {
             Thread.sleep(1000);
             logger.debug("Waiting authorization!");
         }
@@ -826,14 +826,14 @@ public class SlackConnector {
     }
 
     public SlackClient slack() {
-        return connectionStrategy.getSlackClient();
+        return slackConfig.getSlackClient();
     }
 
-    public SlackConnectionStrategy getConnectionStrategy() {
-        return connectionStrategy;
+    public BasicSlackConfig getSlackConfig() {
+        return slackConfig;
     }
 
-    public void setConnectionStrategy(SlackConnectionStrategy connectionStrategy) {
-        this.connectionStrategy = connectionStrategy;
+    public void setSlackConfig(BasicSlackConfig slackConfig) {
+        this.slackConfig = slackConfig;
     }
 }

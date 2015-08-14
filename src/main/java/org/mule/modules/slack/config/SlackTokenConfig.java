@@ -3,7 +3,7 @@
  * a copy of which has been included with this distribution in the LICENSE.md file.
  */
 
-package org.mule.modules.slack.strategy;
+package org.mule.modules.slack.config;
 
 import org.mule.api.ConnectionException;
 import org.mule.api.ConnectionExceptionCode;
@@ -17,8 +17,8 @@ import org.mule.modules.slack.client.SlackClient;
  *
  * @author Esteban Wasinger.
  */
-@ConnectionManagement(configElementName = "config", friendlyName = "Token Configuration")
-public class ConnectionManagementStrategy implements SlackConnectionStrategy
+@ConnectionManagement(configElementName = "config-type", friendlyName = "Token Configuration")
+public class SlackTokenConfig implements BasicSlackConfig
 {
 
     SlackClient slack;
@@ -76,6 +76,9 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
         return accessToken;
     }
 
+    public void setToken(String accessToken){
+        this.accessToken = accessToken;
+    }
 
     public Boolean isAuthorized() {
         if(accessToken == null){
