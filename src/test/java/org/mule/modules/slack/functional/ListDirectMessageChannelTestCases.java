@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class ListDirectMessageChannelTest extends AbstractSlackTestCase {
+public class ListDirectMessageChannelTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testGetDirectMessageChannelList() {

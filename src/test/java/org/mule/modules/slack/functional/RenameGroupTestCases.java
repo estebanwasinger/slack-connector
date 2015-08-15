@@ -9,14 +9,13 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class RenameChannelTest extends AbstractSlackTestCase {
+public class RenameGroupTestCases extends AbstractSlackTestCase {
 
     @Test
-    public void testRenameChannel() throws UserNotFoundException, InterruptedException {
-        Thread.sleep(2000);
+    public void testRenameGroup() throws UserNotFoundException {
         String actualDate = getDateString();
-        getConnector().renameChannel(CHANNEL_RENAMING, actualDate);
-        assertEquals(actualDate,getConnector().getChannelInfo(CHANNEL_RENAMING).getName());
+        getConnector().renameGroup(GROUP_ID, actualDate);
+        assertEquals(actualDate,getConnector().getGroupInfo(GROUP_ID).getName());
     }
 
 }

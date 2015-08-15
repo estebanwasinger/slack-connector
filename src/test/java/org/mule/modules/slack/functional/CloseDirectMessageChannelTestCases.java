@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class CloseDirectMessageChannelTest extends AbstractSlackTestCase {
+public class CloseDirectMessageChannelTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testCloseDMChannel() throws IOException {

@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class SetChannelPurposeTest extends AbstractSlackTestCase {
+public class SetGroupPurposeTestCases extends AbstractSlackTestCase {
 
     @Test
-    public void testSetChannelPurpose() throws UserNotFoundException {
+    public void testSetGroupPurpose() throws UserNotFoundException {
         String date = getDateString();
-        getConnector().setChannelPurpose(CHANNEL_ID,date);
-        String purpose = getConnector().getChannelInfo(CHANNEL_ID).getPurpose().getValue();
-        assertEquals(purpose, date);
+        getConnector().setGroupPurpose(GROUP_ID, date);
+        String purpose = getConnector().getGroupInfo(GROUP_ID).getPurpose().getValue();
+        assertEquals(purpose,date);
     }
 
 }

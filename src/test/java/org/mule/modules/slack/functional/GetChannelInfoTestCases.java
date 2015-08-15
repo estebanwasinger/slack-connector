@@ -9,7 +9,7 @@ import org.mule.modules.slack.runner.AbstractSlackTestCase;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class GetChannelInfoTest extends AbstractSlackTestCase {
+public class GetChannelInfoTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testGetChannelInfo(){

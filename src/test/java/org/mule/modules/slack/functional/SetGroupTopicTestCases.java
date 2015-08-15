@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class SetGroupPurposeTest extends AbstractSlackTestCase {
+public class SetGroupTopicTestCases extends AbstractSlackTestCase {
 
     @Test
-    public void testSetGroupPurpose() throws UserNotFoundException {
+    public void testSetGroupTopic() throws UserNotFoundException {
         String date = getDateString();
-        getConnector().setGroupPurpose(GROUP_ID, date);
-        String purpose = getConnector().getGroupInfo(GROUP_ID).getPurpose().getValue();
-        assertEquals(purpose,date);
+        getConnector().setGroupTopic(GROUP_ID, date);
+        String topic = getConnector().getGroupInfo(GROUP_ID).getTopic().getValue();
+        assertEquals(topic,date);
     }
 
 }

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class SetChannelTopicTest extends AbstractSlackTestCase {
+public class SetChannelTopicTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testSetChannelTopic() throws UserNotFoundException {

@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class OpenDirectMessageChannelTest extends AbstractSlackTestCase {
+public class OpenDirectMessageChannelTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testOpenDMChannel() throws IOException {

@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class LeaveAndJoinChannelTest extends AbstractSlackTestCase {
+public class LeaveAndJoinChannelTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testLeaveAndJoinChannel() {

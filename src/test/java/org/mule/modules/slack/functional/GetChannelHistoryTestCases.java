@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class GetChannelHistoryTest extends AbstractSlackTestCase {
+public class GetChannelHistoryTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testGetChannelHistory() {

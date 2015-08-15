@@ -9,7 +9,7 @@ import org.mule.modules.slack.runner.AbstractSlackTestCase;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class PostMessageWithAttachmentTest extends AbstractSlackTestCase {
+public class PostMessageWithAttachmentTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testPostMessageWithAttachments() {

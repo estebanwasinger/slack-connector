@@ -6,7 +6,7 @@ import org.mule.modules.slack.runner.AbstractSlackTestCase;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetGroupListTest extends AbstractSlackTestCase {
+public class GetGroupListTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testGetGroupList() {

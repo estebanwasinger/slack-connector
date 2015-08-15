@@ -7,7 +7,7 @@ import org.mule.modules.slack.runner.AbstractSlackTestCase;
 
 import java.util.List;
 
-public class ListChannelsTest extends AbstractSlackTestCase {
+public class ListChannelsTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testListChannel() {

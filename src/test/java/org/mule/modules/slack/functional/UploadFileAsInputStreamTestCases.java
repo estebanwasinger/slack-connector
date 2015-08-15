@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class UploadFileAsInputStreamTest extends AbstractSlackTestCase {
+public class UploadFileAsInputStreamTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testUploadFileAsInputStream() throws IOException {

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class CloseAndOpenGroupTest extends AbstractSlackTestCase {
+public class CloseAndOpenGroupTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testCloseAndOpenGroup() {

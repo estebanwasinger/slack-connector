@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class GetUserInfoTest extends AbstractSlackTestCase {
+public class GetUserInfoTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testGetUserInfo() throws UserNotFoundException {

@@ -6,7 +6,7 @@ import org.mule.modules.slack.runner.AbstractSlackTestCase;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostMessageTest extends AbstractSlackTestCase {
+public class PostMessageTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testPostMessage(){
