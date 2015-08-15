@@ -3,8 +3,6 @@ package org.mule.modules.slack.runner;
 import org.mule.modules.slack.SlackConnector;
 import org.mule.tools.devkit.ctf.junit.AbstractTestCase;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public abstract class AbstractSlackTestCase extends AbstractTestCase<SlackConnector> {
@@ -23,9 +21,8 @@ public abstract class AbstractSlackTestCase extends AbstractTestCase<SlackConnec
     }
 
     protected String getDateString() {
-        DateFormat dateFormat = new SimpleDateFormat("ddHHmmss");
         Date date = new Date();
-        return dateFormat.format(date);
+        return String.valueOf(date.getTime());
     }
 
 }
