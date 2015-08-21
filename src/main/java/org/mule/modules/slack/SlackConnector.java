@@ -1,7 +1,7 @@
 /**
-* (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
-* a copy of which has been included with this distribution in the LICENSE.md file.
-*/
+ * (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
+ * a copy of which has been included with this distribution in the LICENSE.md file.
+ */
 
 package org.mule.modules.slack;
 
@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.display.Path;
+import org.mule.api.annotations.display.Placement;
 import org.mule.api.annotations.display.Summary;
 import org.mule.api.annotations.oauth.OAuthProtected;
 import org.mule.api.annotations.param.Default;
@@ -28,6 +29,7 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.client.rtm.ConfigurableHandler;
 import org.mule.modules.slack.metadata.AllChannelCategory;
 import org.mule.modules.slack.metadata.ChannelCategory;
 import org.mule.modules.slack.metadata.GroupCategory;
@@ -36,10 +38,10 @@ import org.mule.modules.slack.retrievers.ChannelMessageRetriever;
 import org.mule.modules.slack.retrievers.DirectMessageRetriever;
 import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
-import org.mule.modules.slack.strategy.OAuth2ConnectionStrategy;
-import org.mule.modules.slack.strategy.SlackConnectionStrategy;
-import java.io.IOException;
+import org.mule.modules.slack.config.SlackOAuth2Config;
+import org.mule.modules.slack.config.BasicSlackConfig;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +56,8 @@ public class SlackConnector {
 
     private static final Logger logger = Logger.getLogger(SlackConnector.class);
 
-    @ConnectionStrategy
-    SlackConnectionStrategy connectionStrategy;
+    @Config
+    BasicSlackConfig slackConfig;
 
     //***********
     // Users methods
@@ -76,7 +78,7 @@ public class SlackConnector {
     @Processor(friendlyName = "User - Info")
     @Summary("This processor returns information about a team member.")
     @MetaDataScope(UserCategory.class)
-    public User getUserInfo(@MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) throws UserNotFoundException {
+    public User getUserInfo(@MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) {
         return slack().getUserInfo(id);
     }
 
@@ -94,7 +96,7 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "User - Info by name")
     @Summary("This processor returns information about a team member.")
-    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
+    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException{
         return slack().getUserInfoByName(username);
     }
 
@@ -733,6 +735,22 @@ public class SlackConnector {
         return slack().sendFile(channelID, fileName, fileType, title, initialComment, inputStream);
     }
 
+
+    @Source(friendlyName = "Retrieve events")
+    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Optional Boolean messages, @Placement(group = "Events to accept") @Optional Boolean userTyping, @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Optional Boolean directMessages, @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Optional Boolean onlyNewMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException {
+        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents), falseIfNull(userTyping), falseIfNull(onlyNewMessages)));
+        System.out.println("Ending!");
+        return null;
+    }
+
+    private Boolean falseIfNull(Boolean aBoolean) {
+        if (aBoolean == null) {
+            return false;
+        } else {
+            return aBoolean;
+        }
+    }
+
     //************
     // Source methods
     //************
@@ -753,14 +771,14 @@ public class SlackConnector {
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
 
-        if (getConnectionStrategy().getClass().equals(OAuth2ConnectionStrategy.class)) {
+        if (getSlackConfig().getClass().equals(SlackOAuth2Config.class)) {
             while (true) {
                 logger.error("Retrieve Messages source doesn't work with OAuth 2 configuration, please use Connection Management");
                 Thread.sleep(5000);
             }
         }
 
-        while (!getConnectionStrategy().isAuthorized()) {
+        while (!getSlackConfig().isAuthorized()) {
             Thread.sleep(1000);
             logger.debug("Waiting authorization!");
         }
@@ -808,14 +826,14 @@ public class SlackConnector {
     }
 
     public SlackClient slack() {
-        return connectionStrategy.getSlackClient();
+        return slackConfig.getSlackClient();
     }
 
-    public SlackConnectionStrategy getConnectionStrategy() {
-        return connectionStrategy;
+    public BasicSlackConfig getSlackConfig() {
+        return slackConfig;
     }
 
-    public void setConnectionStrategy(SlackConnectionStrategy connectionStrategy) {
-        this.connectionStrategy = connectionStrategy;
+    public void setSlackConfig(BasicSlackConfig slackConfig) {
+        this.slackConfig = slackConfig;
     }
 }

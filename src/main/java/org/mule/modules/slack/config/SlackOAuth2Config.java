@@ -1,9 +1,8 @@
 /**
-* (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
-* a copy of which has been included with this distribution in the LICENSE.md file.
-*/
-
-package org.mule.modules.slack.strategy;
+ * (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
+ * a copy of which has been included with this distribution in the LICENSE.md file.
+ */
+package org.mule.modules.slack.config;
 
 
 import org.mule.api.annotations.Configurable;
@@ -17,7 +16,7 @@ import org.mule.modules.slack.client.SlackClient;
         accessTokenRegex = "\"access_token\":\"([^&]+?)\"",
         expirationRegex = "\"expires_in\":([^&]+?),",
         refreshTokenRegex = "\"refresh_token\":\"([^&]+?)\"" )
-public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
+public class SlackOAuth2Config implements BasicSlackConfig {
 
     SlackClient client;
 
@@ -99,6 +98,10 @@ public class OAuth2ConnectionStrategy implements  SlackConnectionStrategy {
 
     public SlackClient getSlackClient() {
         return client;
+    }
+
+    public String getToken() {
+        return getAccessToken();
     }
 
     public Boolean isAuthorized() {

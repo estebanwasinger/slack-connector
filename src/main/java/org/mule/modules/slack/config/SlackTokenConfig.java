@@ -3,14 +3,13 @@
  * a copy of which has been included with this distribution in the LICENSE.md file.
  */
 
-package org.mule.modules.slack.strategy;
+package org.mule.modules.slack.config;
 
 import org.mule.api.ConnectionException;
 import org.mule.api.ConnectionExceptionCode;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.components.ConnectionManagement;
 import org.mule.api.annotations.param.ConnectionKey;
-import org.mule.api.annotations.param.Default;
 import org.mule.modules.slack.client.SlackClient;
 
 /**
@@ -18,8 +17,8 @@ import org.mule.modules.slack.client.SlackClient;
  *
  * @author Esteban Wasinger.
  */
-@ConnectionManagement(configElementName = "config-type", friendlyName = "Connection Managament type strategy")
-public class ConnectionManagementStrategy implements SlackConnectionStrategy
+@ConnectionManagement(configElementName = "config-type", friendlyName = "Token Configuration")
+public class SlackTokenConfig implements BasicSlackConfig
 {
 
     SlackClient slack;
@@ -57,7 +56,7 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
      */
     @ValidateConnection
     public boolean isConnected() {
-       return slack == null ? false : true;
+       return slack != null;
     }
 
     /**
@@ -73,6 +72,13 @@ public class ConnectionManagementStrategy implements SlackConnectionStrategy
         return slack;
     }
 
+    public String getToken() {
+        return accessToken;
+    }
+
+    public void setToken(String accessToken){
+        this.accessToken = accessToken;
+    }
 
     public Boolean isAuthorized() {
         if(accessToken == null){
