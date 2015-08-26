@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Slack
+Bundle-SymbolicName: org.mule.tooling.ui.contribution.slack.3.5.0;singleton:=true
+Bundle-Version: 1.0.0.201508261919
+Bundle-Activator: org.mule.tooling.ui.contribution.SlackActivator
+Bundle-Vendor: Esteban Wasinger
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.mule.tooling.core;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Eclipse-BundleShape: dir

@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<namespace xmlns="http://www.mulesoft.org/schema/mule/tooling.attributes" xmlns:mule="http://www.mulesoft.org/schema/mule/core" url="http://www.mulesoft.org/schema/mule/slack" prefix="slack">
+  <global-cloud-connector versions="[3.5.0,8.0.0]" caption="Slack" description="" icon="" localId="parentConfig" image="" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric"></global-cloud-connector>
+  <nested caption="" description="" localId="connection-pooling-profile" abstract="true">
+    <radioBoolean name="defaultPoolingProfile" caption="Use default connection pool configuration" description="Use default connection pool configuration." fillLine="true"></radioBoolean>
+    <radioBoolean name="customPoolingProfile" caption="Define connection pool configuration" description="Define connection pool configuration." fillLine="true"></radioBoolean>
+    <integer defaultValue="5" min="-1" step="0" name="maxActive" caption="Max active" description="Controls the maximum number of connections that can be borrowed from the pool at one time. When set to a negative value, there is no limit to the number of connections that may be active at one time. When maxActive is exceeded, the pool is said to be exhausted." controlled="customPoolingProfile" indented="true" fillLine="true"></integer>
+    <integer defaultValue="5" min="-1" step="0" name="maxIdle" caption="Max idle" description="Controls the maximum number of connections that can sit idle in the pool at any time. When set to a negative value, there is no limit to the number of connections that may be idle at one time." controlled="customPoolingProfile" indented="true" fillLine="true"></integer>
+    <enum defaultValue="INITIALISE_ONE" name="initialisationPolicy" caption="Initialisation policy" description="Determines how connections in a pool should be initialized. The possible values are: INITIALISE_NONE (will not load any connection into the pool on startup), INITIALISE_ONE (will load one initial connection into the pool on startup), or INITIALISE_ALL (will load all connections in the pool on startup)" alwaysFill="true" controlled="customPoolingProfile" indented="true">
+      <option value="INITIALISE_NONE"></option>
+      <option value="INITIALISE_ONE"></option>
+      <option value="INITIALISE_ALL"></option>
+    </enum>
+    <enum defaultValue="WHEN_EXHAUSTED_GROW" name="exhaustedAction" caption="Exhausted action" description="Specifies the behavior of the connection pool when the pool is exhausted. Possible values are: &quot;WHEN_EXHAUSTED_FAIL&quot;, which will throw a NoSuchElementException, &quot;WHEN_EXHAUSTED_WAIT&quot;, which will block by invoking Object.wait(long) until a new or idle object is available, or WHEN_EXHAUSTED_GROW, which will create a new connection and return it, essentially making maxActive meaningless. If a positive maxWait value is supplied, it will block for at most that many milliseconds, after which a NoSuchElementException will be thrown. If maxThreadWait is a negative value, it will block indefinitely." alwaysFill="true" controlled="customPoolingProfile" indented="true">
+      <option value="WHEN_EXHAUSTED_WAIT"></option>
+      <option value="WHEN_EXHAUSTED_FAIL"></option>
+      <option value="WHEN_EXHAUSTED_GROW"></option>
+    </enum>
+    <integer defaultValue="5" min="-1" step="0" name="maxWait" caption="Max wait" description="When exhausted action is Wait (or block) this is the amount of time in milliseconds that the pool will wait before failing. Setting a negative value will block indefinitely until an idle instance becomes available." controlled="customPoolingProfile" indented="true" fillLine="true"></integer>
+    <integer defaultValue="1800000" min="-1" step="0" name="minEvictionMillis" caption="Min eviction (ms)" description="Determines the minimum amount of time a connection may sit idle in the pool before it is eligible for eviction. When non-positive, no connections will be evicted from the pool due to idle time alone." controlled="customPoolingProfile" indented="true" fillLine="true"></integer>
+    <integer defaultValue="-1" min="-1" step="0" name="evictionCheckIntervalMillis" caption="Eviction check interval (ms)" description="Specifies the number of milliseconds between runs of the connection evictor. When non-positive, no connection evictor is executed." controlled="customPoolingProfile" indented="true" fillLine="true"></integer>
+  </nested>
+  <nested caption="" description="" localId="reconnectionStrategyElement" abstract="true">
+    <label name="connectionLabel" caption="Define how mule should attempt to handle a connection failure" description=""></label>
+    <radioBoolean name="noReconnection" caption="Do not use a Reconnection strategy" description="Disable reconection strategy" fillLine="true"></radioBoolean>
+    <radioBoolean name="standardReconnection" caption="Standard Reconnection" description="A reconnection strategy that allows the user to configure how many times a reconnection should be attempted and how long to wait between attempts." fillLine="true"></radioBoolean>
+    <integer defaultValue="2000" min="1" max="2147483647" step="1" name="reconnectionFrequency" caption="Frequency (ms)" description="How often (in ms) to reconnect" controlled="standardReconnection" indented="true"></integer>
+    <integer defaultValue="2" min="1" max="2147483647" step="1" name="reconnectionAttemps" caption="Reconnection Attempts" description="How many reconnection attempts to make" controlled="standardReconnection,!reconnectForever" indented="true"></integer>
+    <boolean name="reconnectForever" caption="Reconnect Forever" description="A reconnection strategy that retries an infinite number of times at the specified frequency." controlled="standardReconnection" indented="true"></boolean>
+    <radioBoolean name="customReconnection" caption="Custom Reconnection" description="A user-defined reconnection strategy." fillLine="true"></radioBoolean>
+    <classname name="class" caption="Class" description="A class that implements the RetryPolicyTemplate interface." controlled="customReconnection" indented="true"></classname>
+    <childElement allowMultiple="true" name="http://www.springframework.org/schema/beans/property" caption="Properties" description="Property elements." controlled="customReconnection"></childElement>
+  </nested>
+  <cloud-connector-message-source supportsInbound="true" supportsOutbound="false" versions="[3.5.0,8.0.0]" caption="Slack (Streaming)" description="Slack Anypoint Connector." icon="icons/small/slack-endpoint-24x16.png" localId="endpoint" image="icons/large/slack-endpoint-48x32.png" abstract="false" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric">
+    <attribute-category caption="General" description="General.">
+      <group id="slackConnectorGeneric" caption="Basic Settings">
+        <modeSwitch alwaysCombo="true" name="Slack operations to execute" caption="Operation" description="Operation.">
+          <no-operation abstractElement="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" versions="[3.5.0,8.0.0]" connector-name="source"></no-operation>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/retrieve-messages" modeLabel="Retrieve messages"></mode>
+        </modeSwitch>
+      </group>
+    </attribute-category>
+  </cloud-connector-message-source>
+  <cloud-connector-message-source supportsInbound="true" supportsOutbound="false" inboundLocalName="retrieve-messages" caption="Retrieve Messages" description="This Source retrieves messages from the desired channel, private group or direct message channel." icon="icons/small/slack-endpoint-24x16.png" localId="retrieve-messages" image="icons/large/slack-endpoint-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <integer min="0" step="1" name="messageRetrieverInterval" caption="Message Retriever Interval" description="Pool interval." required="true" javaType="java.lang.Integer"></integer>
+        <string name="channelID" caption="Channel ID" description="This source stream messages/events from the specified channel, group or direct message channel." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector-message-source>
+  <global-cloud-connector versions="[3.5.0,8.0.0]" caption="Slack: Connection Managament type strategy" description="Global Connection Managament type strategy configuration information. Connection Management Strategy." icon="icons/small/slack-connector-24x16.png" localId="config-type" image="icons/large/slack-connector-48x32.png" abstract="false" extends="http://www.mulesoft.org/schema/mule/slack/parentConfig" connectivityTesting="on" connectivityTestingLabel="Test Connection..." metaData="dynamic" metaDataKeyDisplay="DISPLAY_NAME">
+    <attribute-category caption="General" description="Slack configuration properties.">
+      <group id="slackGenericProperties" caption="Basic Settings">
+        <name name="name" caption="Name" description="Give a name to this configuration so it can be later referenced by config-ref." required="true"></name>
+      </group>
+      <group id="connection" caption="Connection">
+        <string name="accessToken" caption="Access Token" description="" required="true" javaType="java.lang.String" requiredForDataSense="true"></string>
+      </group>
+      <group id="general" caption="General">
+        <useMetaData name="useMetaData" caption="useMetaData"></useMetaData>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Pooling Profile" description="Pooling profile options.">
+      <group id="poolingProfile" caption="Pooling Profile">
+        <childElement inplace="true" name="http://www.mulesoft.org/schema/mule/slack/connection-pooling-profile" caption="" description="" valuePersistence="org.mule.tooling.ui.modules.core.widgets.meta.PoolingProfileValuePersistence"></childElement>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Reconnection" description="Reconnection options.">
+      <group id="reconnectionStrategies" caption="Strategies">
+        <childElement inplace="true" name="http://www.mulesoft.org/schema/mule/core/reconnectionStrategyElement" caption="" description="" valuePersistence="org.mule.tooling.ui.modules.core.widgets.meta.HTTPTransactionValuePersistence"></childElement>
+        <childElement allowSubTypes="true" allowedSubTypes="http://www.mulesoft.org/schema/mule/core/reconnect,http://www.mulesoft.org/schema/mule/core/reconnect-custom-strategy,http://www.mulesoft.org/schema/mule/core/reconnect-forever" name="http://www.mulesoft.org/schema/mule/core/abstractReconnectionStrategy" caption="" description="" visibleInDialog="false"></childElement>
+      </group>
+    </attribute-category>
+  </global-cloud-connector>
+  <global-cloud-connector versions="[3.5.0,8.0.0]" caption="Slack: OAuth2 Configuration" description="Global OAuth2 Configuration configuration information." icon="icons/small/slack-connector-24x16.png" localId="oauth2-type" image="icons/large/slack-connector-48x32.png" abstract="false" extends="http://www.mulesoft.org/schema/mule/slack/parentConfig" connectivityTesting="off" metaData="static" metaDataKeyDisplay="DISPLAY_NAME">
+    <attribute-category caption="General" description="Slack configuration properties.">
+      <group id="slackGenericProperties" caption="Basic Settings">
+        <name name="name" caption="Name" description="Give a name to this configuration so it can be later referenced by config-ref." required="true"></name>
+      </group>
+      <group id="connection" caption="Connection">
+        <string name="consumerKey" caption="Client ID" description="The OAuth consumer key." required="true" javaType="java.lang.String" requiredForDataSense="true"></string>
+        <string name="consumerSecret" caption="Client Secret" description="The OAuth consumer secret." required="true" javaType="java.lang.String" requiredForDataSense="true"></string>
+        <enum defaultValue="EXCEPTION" allowsCustom="false" name="onNoToken" xsdType="string" caption="On No Token" description="Action to take when no token is found.">
+          <option value="EXCEPTION"></option>
+          <option value="STOP_FLOW"></option>
+        </enum>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Oauth" description="OAuth.">
+      <group id="oauthCallbackConfigGroup" caption="Oauth Callback Config">
+        <childElement inplace="true" name="http://www.mulesoft.org/schema/mule/slack/oauth-callback-config" caption="" description=""></childElement>
+      </group>
+      <group id="oauthStoreConfigGroup" caption="Oauth Object Store Config">
+        <childElement inplace="true" name="http://www.mulesoft.org/schema/mule/slack/oauth-store-config" caption="" description=""></childElement>
+      </group>
+    </attribute-category>
+  </global-cloud-connector>
+  <cloud-connector caption="Abstractslackconnectorgeneric" description="Interact with Slack." icon="icons/small/slack-connector-24x16.png" localId="abstractSlackConnectorGeneric" image="icons/large/slack-connector-48x32.png" abstract="true">
+    <attribute-category caption="General" description="General.">
+      <group id="abstractSlackConnectorGeneric" caption="Basic Settings">
+        <globalRef requiredType="$http://www.mulesoft.org/schema/mule/slack/oauth2-type,http://www.mulesoft.org/schema/mule/slack/config-type" name="config-ref" caption="Connector Configuration" description="Specify which configuration to use for this invocation." required="true"></globalRef>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector versions="[3.5.0,8.0.0]" aliasId="org.mule.tooling.ui.modules.core.pattern.slack" caption="Slack" description="Slack Anypoint Connector." icon="icons/small/slack-connector-24x16.png" localId="slack-connector" image="icons/large/slack-connector-48x32.png" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric">
+    <attribute-category caption="General" description="General.">
+      <group id="slackConnectorGeneric" caption="Basic Settings">
+        <modeSwitch alwaysCombo="true" name="Slack operations to execute" caption="Operation" description="Operation.">
+          <no-operation abstractElement="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" versions="[3.5.0,8.0.0]" connector-name="processor"></no-operation>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/authorize" modeLabel="Authorize"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/unauthorize" modeLabel="Unauthorize"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/archive-channel" modeLabel="Channel - Archive"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/archive-group" modeLabel="Group - Archive"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/close-direct-message-channel" modeLabel="IM - Close DM channel"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/close-group" modeLabel="Group - Close"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/create-channel" modeLabel="Channel - Create"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/create-group" modeLabel="Group - Create"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/delete-message" modeLabel="Chat - Delete message"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-channel-by-name" modeLabel="Channel - Info by Name"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-channel-history" modeLabel="Channel - History"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-channel-info" modeLabel="Channel - Info"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-channel-list" modeLabel="Channel - List"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-d-m-history" modeLabel="IM - History"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-group-history" modeLabel="Group - History"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-group-info" modeLabel="Group - Info"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-group-list" modeLabel="Group - List"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-user-info" modeLabel="User - Info"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-user-info-by-name" modeLabel="User - Info by name"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/get-user-list" modeLabel="User - List"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/join-channel" modeLabel="Channel - Join"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/leave-channel" modeLabel="Channel - Leave"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/leave-group" modeLabel="Group - Leave"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/list-direct-message-channels" modeLabel="IM - List DM channels"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/open-direct-message-channel" modeLabel="IM - Open DM channel"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/open-group" modeLabel="Group - Open"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/post-message" modeLabel="Chat - Post message"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/post-message-with-attachment" modeLabel="Chat - Post message with attachment"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/rename-channel" modeLabel="Channel - Rename"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/rename-group" modeLabel="Group - Rename"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/set-channel-purpose" modeLabel="Channel - Set purpose"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/set-channel-topic" modeLabel="Channel - Set topic"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/set-group-purpose" modeLabel="Group - Set purpose"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/set-group-topic" modeLabel="Group - Set topic"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/unarchive-channel" modeLabel="Channel - Unarchive"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/unarchive-group" modeLabel="Group - Unarchive"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/update-message" modeLabel="Chat - Update message"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/upload-file" modeLabel="File - Upload"></mode>
+          <mode modeId="http://www.mulesoft.org/schema/mule/slack/upload-file-as-input-streams" modeLabel="File - Upload as Input Stream"></mode>
+        </modeSwitch>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="ChannelCategory" caption="Channel - Archive" icon="icons/small/slack-connector-24x16.png" localId="archive-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the Channel to Archive." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Archive" icon="icons/small/slack-connector-24x16.png" localId="archive-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to archive." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector caption="Authorize" icon="icons/small/slack-connector-24x16.png" localId="authorize" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="state" caption="State" description="Any value that you wish to be sent with the callback." required="false"></string>
+        <string name="accessTokenUrl" caption="Access Token Url" description="The URL defined by the Service Provider to obtain an access token." required="false"></string>
+        <string name="authorizationUrl" caption="Authorization Url" description="The URL defined by the Service Provider where the resource owner will be redirected to grant authorization to the connector." required="false"></string>
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" caption="Im - Close Dm Channel" icon="icons/small/slack-connector-24x16.png" localId="close-direct-message-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="channelId" caption="DM Channel ID" description="Direct message channel ID to close." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Close" icon="icons/small/slack-connector-24x16.png" localId="close-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to close." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.channel.Channel" caption="Channel - Create" icon="icons/small/slack-connector-24x16.png" localId="create-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="channelName" caption="Channel Name" description="Name of channel to create." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.group.Group" caption="Group - Create" icon="icons/small/slack-connector-24x16.png" localId="create-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="groupName" caption="Group Name" description="Name of the group to create." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="AllChannelCategory" caption="Chat - Delete Message" icon="icons/small/slack-connector-24x16.png" localId="delete-message" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="ID of the channel of the message." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="timeStamp" caption="Message TimeStamp" description="TimeStamp of the message to delete." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.channel.Channel" caption="Channel - Info By Name" icon="icons/small/slack-connector-24x16.png" localId="get-channel-by-name" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="channelName" caption="Channel Name" description="Channel name to get info on." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.chat.Message&gt;" categories="ChannelCategory" caption="Channel - History" icon="icons/small/slack-connector-24x16.png" localId="get-channel-history" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="Channel to fetch history for." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="latestTimestamp" caption="Latest Timestamp" description="End of time range of messages to include in results. Leave it blank to select current time." required="false" javaType="java.lang.String"></string>
+        <string defaultValue="100" name="mountOfMessages" caption="Mount Of Messages" description="Number of messages to return, between 1 and 1000." required="false" javaType="java.lang.String"></string>
+        <string name="oldestTimestamp" caption="Oldest Timestamp" description="Start of time range of messages to include in results. Leave it blank for timestamp 0." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.channel.Channel" categories="ChannelCategory" caption="Channel - Info" icon="icons/small/slack-connector-24x16.png" localId="get-channel-info" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="Channel to get info on." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.channel.Channel&gt;" caption="Channel - List" icon="icons/small/slack-connector-24x16.png" localId="get-channel-list" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General."></attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.chat.Message&gt;" categories="UserCategory" caption="Im - History" icon="icons/small/slack-connector-24x16.png" localId="get-d-m-history" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel ID" description="Channel to fetch history for." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="latestTimestamp" caption="Latest Timestamp" description="End of time range of messages to include in results. Leave it blank to select current time." required="false" javaType="java.lang.String"></string>
+        <string defaultValue="100" name="mountOfMessages" caption="Mount Of Messages" description="Number of messages to return, between 1 and 1000." required="false" javaType="java.lang.String"></string>
+        <string name="oldestTimestamp" caption="Oldest Timestamp" description="Start of time range of messages to include in results. Leave it blank for timestamp 0." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.chat.Message&gt;" categories="GroupCategory" caption="Group - History" icon="icons/small/slack-connector-24x16.png" localId="get-group-history" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="groupID" caption="Channel ID" description="Group to fetch history for." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="latestTimestamp" caption="Latest Timestamp" description="End of time range of messages to include in results. Leave it blank to select current time." required="false" javaType="java.lang.String"></string>
+        <string defaultValue="100" name="mountOfMessages" caption="Mount Of Messages" description="Number of messages to return, between 1 and 1000." required="false" javaType="java.lang.String"></string>
+        <string name="oldestTimestamp" caption="Oldest Timestamp" description="Start of time range of messages to include in results. Leave it blank for timestamp 0." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.group.Group" categories="GroupCategory" caption="Group - Info" icon="icons/small/slack-connector-24x16.png" localId="get-group-info" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Group ID" description="Group to get info on." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.group.Group&gt;" caption="Group - List" icon="icons/small/slack-connector-24x16.png" localId="get-group-list" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General."></attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.User" categories="UserCategory" caption="User - Info" icon="icons/small/slack-connector-24x16.png" localId="get-user-info" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="id" caption="User ID" description="User ID to get info on." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.User" caption="User - Info By Name" icon="icons/small/slack-connector-24x16.png" localId="get-user-info-by-name" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="username" caption="Username" description="User name to get info on." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.User&gt;" caption="User - List" icon="icons/small/slack-connector-24x16.png" localId="get-user-list" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General."></attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.channel.Channel" categories="ChannelCategory" caption="Channel - Join" icon="icons/small/slack-connector-24x16.png" localId="join-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelName" caption="Channel Name" description="Name of the channel to Join." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="ChannelCategory" caption="Channel - Leave" icon="icons/small/slack-connector-24x16.png" localId="leave-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="ID of the channel to Leave." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Leave" icon="icons/small/slack-connector-24x16.png" localId="leave-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Group ID" description="ID of the group to leave." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.util.List&lt;org.mule.modules.slack.client.model.im.DirectMessageChannel&gt;" caption="Im - List Dm Channels" icon="icons/small/slack-connector-24x16.png" localId="list-direct-message-channels" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="static">
+    <attribute-category caption="General" description="General."></attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse" categories="UserCategory" caption="Im - Open Dm Channel" icon="icons/small/slack-connector-24x16.png" localId="open-direct-message-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="userId" caption="User ID" description="User ID to open a direct message channel with." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Open" icon="icons/small/slack-connector-24x16.png" localId="open-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to open." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.chat.MessageResponse" categories="AllChannelCategory" caption="Chat - Post Message" icon="icons/small/slack-connector-24x16.png" localId="post-message" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="ID of the channel to post the message." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="iconURL" caption="Icon URL" description="Icon URL of the icon to show in the message." required="false" javaType="java.lang.String"></string>
+        <string name="username" caption="Name to show" description="Name to show in the message." required="false" javaType="java.lang.String"></string>
+        <string name="message" caption="Message" description="Message to post." required="true" javaType="java.lang.String"></string>
+        <boolean name="asUser" caption="As User" description="Boolean indicating if the message is showed as a User or as a Bot." supportsExpressions="true" required="false" javaType="java.lang.Boolean"></boolean>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.chat.MessageResponse" categories="AllChannelCategory" caption="Chat - Post Message With Attachment" icon="icons/small/slack-connector-24x16.png" localId="post-message-with-attachment" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="ID of the channel to post the message." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="iconURL" caption="Icon URL" description="Icon URL of the icon to show in the message." required="false" javaType="java.lang.String"></string>
+        <string name="username" caption="Name to show" description="Name to show in the message." required="false" javaType="java.lang.String"></string>
+        <string name="message" caption="Message" description="Message to post." required="false" javaType="java.lang.String"></string>
+        <childElement inplace="true" allowMultiple="false" defaultValue="#[payload]" name="http://www.mulesoft.org/schema/mule/slack/chat-attachment" caption="Chat Attachment Reference" required="false" javaType="org.mule.modules.slack.client.model.chat.attachment.ChatAttachment"></childElement>
+        <childElement inplace="true" allowMultiple="false" name="http://www.mulesoft.org/schema/mule/slack/field" caption="Field Reference" required="false" javaType="org.mule.modules.slack.client.model.chat.attachment.Field"></childElement>
+        <boolean name="asUser" caption="As User" description="Boolean indicating if the message is showed as a User or as a Bot." supportsExpressions="true" required="false" javaType="java.lang.Boolean"></boolean>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.channel.Channel" categories="ChannelCategory" caption="Channel - Rename" icon="icons/small/slack-connector-24x16.png" localId="rename-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="Channel to rename." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="channelName" caption="Channel Name" description="New name for channel." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.group.Group" categories="GroupCategory" caption="Group - Rename" icon="icons/small/slack-connector-24x16.png" localId="rename-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="groupId" caption="Group ID" description="Group to rename." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="groupName" caption="Group Name" description="New name for group." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="ChannelCategory" caption="Channel - Set Purpose" icon="icons/small/slack-connector-24x16.png" localId="set-channel-purpose" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the channel to change the purpose." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="purpose" caption="Purpose" description="New channel purpose." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="ChannelCategory" caption="Channel - Set Topic" icon="icons/small/slack-connector-24x16.png" localId="set-channel-topic" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the channel to change the topic." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="topic" caption="Topic" description="New channel topic." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Set Purpose" icon="icons/small/slack-connector-24x16.png" localId="set-group-purpose" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to set the new purpose." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="purpose" caption="Purpose" description="The new group purpose." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Set Topic" icon="icons/small/slack-connector-24x16.png" localId="set-group-topic" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to set the new topic." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="topic" caption="Topic" description="The new topic." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="ChannelCategory" caption="Channel - Unarchive" icon="icons/small/slack-connector-24x16.png" localId="unarchive-channel" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the Channel to Unarchive." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="GroupCategory" caption="Group - Unarchive" icon="icons/small/slack-connector-24x16.png" localId="unarchive-group" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel I D" description="ID of the group to unarchive." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector caption="Unauthorize" icon="icons/small/slack-connector-24x16.png" localId="unauthorize" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="java.lang.Boolean" categories="AllChannelCategory" caption="Chat - Update Message" icon="icons/small/slack-connector-24x16.png" localId="update-message" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelId" caption="Channel ID" description="ID of the channel of the message." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="timeStamp" caption="Message TimeStamp" description="TimeStamp of the message to delete." required="true" javaType="java.lang.String"></string>
+        <string name="message" caption="Message" description="New message." required="true" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.file.FileUploadResponse" categories="AllChannelCategory" caption="File - Upload" icon="icons/small/slack-connector-24x16.png" localId="upload-file" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel ID" description="ID of the channel to upload a file." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="fileName" caption="File Name" description="File name." required="false" javaType="java.lang.String"></string>
+        <file name="filePath" caption="File Path" description="File path of the file to upload." required="true" javaType="java.lang.String"></file>
+        <string name="fileType" caption="File Type" description="File type." required="false" javaType="java.lang.String"></string>
+        <string name="initialComment" caption="Initial Comment" description="Message initial comment." required="false" javaType="java.lang.String"></string>
+        <string name="title" caption="Title" description="Message title." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <cloud-connector returnType="org.mule.modules.slack.client.model.file.FileUploadResponse" categories="AllChannelCategory" caption="File - Upload As Input Stream" icon="icons/small/slack-connector-24x16.png" localId="upload-file-as-input-streams" image="icons/large/slack-connector-48x32.png" abstract="true" extends="http://www.mulesoft.org/schema/mule/slack/abstractSlackConnectorGeneric" metaData="dynamic">
+    <attribute-category caption="General" description="General.">
+      <group id="general" caption="General">
+        <type-chooser associatedConfig="config-ref" affects="AUTO" name="channelID" caption="Channel ID" description="Channel ID to send the message." supportsExpressions="true" required="true" javaType="java.lang.String"></type-chooser>
+        <string name="fileName" caption="File Name" description="File name to show in the Slack message." required="false" javaType="java.lang.String"></string>
+        <string name="fileType" caption="File Type" description="File type." required="false" javaType="java.lang.String"></string>
+        <string name="initialComment" caption="Initial Comment" description="Message initial comment." required="false" javaType="java.lang.String"></string>
+        <string name="title" caption="Title" description="Message title." required="false" javaType="java.lang.String"></string>
+        <string defaultValue="#[payload]" name="inputStream-ref" caption="Input Stream Reference" description="Input Stream Reference of where to look the file to upload." required="false" javaType="java.io.InputStream"></string>
+      </group>
+    </attribute-category>
+    <attribute-category caption="Advanced" description="Advanced">
+      <group id="advanced" caption="Advanced">
+        <string name="accessTokenId" caption="Access Token Id" description="The id of the access token that will be used to authenticate the call." required="false" javaType="java.lang.String"></string>
+      </group>
+    </attribute-category>
+  </cloud-connector>
+  <nested caption="" description="" localId="oauth-callback-config" abstract="true">
+    <string name="domain" caption="Domain" description="The domain name to use when setting up the callback endpoint." required="true"></string>
+    <string name="localPort" caption="Local Port" description="The local port to use when setting up the callback endpoint." required="true"></string>
+    <string name="remotePort" caption="Remote Port" description="The remote port is the port used to build the external callback URL."></string>
+    <string name="path" caption="Path" description="The path to use when setting up the callback endpoint." required="true"></string>
+    <string name="connector-ref" caption="Http Connector Reference" description="The Http Connector to use when setting up the callback endpoint."></string>
+    <string name="defaultAccessTokenId" caption="Default Access Token Id" description="A Mule Expression to use as access token id."></string>
+    <boolean defaultValue="false" name="async" caption="Async" description="Async." fillLine="true"></boolean>
+  </nested>
+  <nested caption="" description="Configuration element for storage of access tokens" localId="oauth-store-config" abstract="true">
+    <string name="objectStore-ref" caption="Object Store Reference" description="Object store reference."></string>
+  </nested>
+  <nested xmlname="chat-attachment" caption="" description="" localId="chat-attachment" abstract="false">
+    <radioBoolean name="useReference" caption="Reference or expression" description="Provide a reference to a bean or use an expression" fillLine="true"></radioBoolean>
+    <string name="ref" caption="Chat Attachment Reference" description="" controlled="useReference"></string>
+    <radioBoolean name="complex" caption="Define attributes" description="Define this element's attributes" fillLine="true"></radioBoolean>
+    <string name="fallback" caption="Fallback" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="color" caption="Color" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="pretext" caption="Pretext" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="authorName" caption="Author Name" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="authorLink" caption="Author Link" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="authorIcon" caption="Author Icon" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="title" caption="Title" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="titleLink" caption="Title Link" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="text" caption="Text" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <element-controller-listOfPojo listName="fields" localName="configurable-fields" itemName="field" caption="Fields" description="" required="false" controlled="complex" javaType="java.util.List&lt;org.mule.modules.slack.client.model.chat.attachment.Field&gt;"></element-controller-listOfPojo>
+    <string name="imageUrl" caption="Image Url" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+  </nested>
+  <nested xmlname="field" caption="" description="" localId="field" abstract="false">
+    <radioBoolean name="useReference" caption="Reference or expression" description="Provide a reference to a bean or use an expression" fillLine="true"></radioBoolean>
+    <string name="ref" caption="Field Reference" description="" controlled="useReference"></string>
+    <radioBoolean name="complex" caption="Define attributes" description="Define this element's attributes" fillLine="true"></radioBoolean>
+    <string name="title" caption="Title" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+    <string name="value" caption="Value" description="" required="false" controlled="complex" javaType="java.lang.String"></string>
+  </nested>
+</namespace>

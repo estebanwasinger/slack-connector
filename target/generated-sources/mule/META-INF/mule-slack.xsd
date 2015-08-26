@@ -1,0 +1,1560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:ns2="http://www.mulesoft.org/schema/mule/devkit" xmlns:mule="http://www.mulesoft.org/schema/mule/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mulesoft.org/schema/mule/slack" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"></xs:import>
+  <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"></xs:import>
+  <xs:import namespace="http://www.mulesoft.org/schema/mule/core" schemaLocation="http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></xs:import>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstract-extension" name="config-type">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractExtensionType">
+          <xs:annotation>
+            <xs:documentation>Connection Management Strategy</xs:documentation>
+          </xs:annotation>
+          <xs:sequence>
+            <xs:element type="mule:poolingProfileType" minOccurs="0" name="connection-pooling-profile">
+              <xs:annotation>
+                <xs:documentation>Characteristics of the connection pool.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" ref="mule:abstract-reconnection-strategy">
+              <xs:annotation>
+                <xs:documentation>Reconnection strategy that defines how Mule should handle a connection failure.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="required" name="name">
+            <xs:annotation>
+              <xs:documentation>Give a name to this configuration so it can be later referenced by config-ref.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" use="required" name="accessToken">
+            <xs:annotation>
+              <xs:documentation></xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns:mule="http://www.mulesoft.org/schema/mule/core" substitutionGroup="mule:abstract-extension" name="oauth2-type">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="mule:abstractExtensionType">
+          <xs:annotation>
+            <xs:documentation></xs:documentation>
+          </xs:annotation>
+          <xs:sequence>
+            <xs:element minOccurs="1" maxOccurs="1" name="oauth-callback-config">
+              <xs:annotation>
+                <xs:documentation>Config for http callbacks.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension base="mule:abstractExtensionType">
+                    <xs:attribute type="xs:string" use="required" name="localPort"></xs:attribute>
+                    <xs:attribute type="xs:string" use="optional" name="remotePort"></xs:attribute>
+                    <xs:attribute type="xs:string" use="required" name="domain"></xs:attribute>
+                    <xs:attribute type="xs:boolean" use="optional" default="false" name="async"></xs:attribute>
+                    <xs:attribute type="xs:string" use="required" name="path"></xs:attribute>
+                    <xs:attribute type="xs:string" use="optional" name="connector-ref"></xs:attribute>
+                    <xs:attribute type="xs:string" use="optional" name="defaultAccessTokenId">
+                      <xs:annotation>
+                        <xs:documentation>A Mule Expression to use as access token id</xs:documentation>
+                      </xs:annotation>
+                    </xs:attribute>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" maxOccurs="1" name="oauth-store-config">
+              <xs:annotation>
+                <xs:documentation>Configuration element for storage of access tokens</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension base="mule:abstractExtensionType">
+                    <xs:attribute type="xs:string" use="required" name="objectStore-ref"></xs:attribute>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="required" name="name">
+            <xs:annotation>
+              <xs:documentation>Give a name to this configuration so it can be later referenced by config-ref.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" use="required" name="consumerKey">
+            <xs:annotation>
+              <xs:documentation>The OAuth consumer key</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" use="required" name="consumerSecret">
+            <xs:annotation>
+              <xs:documentation>The OAuth consumer secret</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" use="optional" default="https://slack.com/api/oauth.access" name="accessTokenUrl">
+            <xs:annotation>
+              <xs:documentation>The URL defined by the Service Provider to obtain an access token</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute xmlns="http://www.mulesoft.org/schema/mule/slack" type="OnNoTokenPolicyEnumType" use="optional" default="EXCEPTION" name="onNoToken">
+            <xs:annotation>
+              <xs:documentation>The URL defined by the Service Provider to obtain an access token</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" use="optional" default="https://slack.com/oauth/authorize" name="authorizationUrl">
+            <xs:annotation>
+              <xs:documentation>The URL defined by the Service Provider where the resource owner will be redirected to grant authorization to the connector</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="AuthorizeType" substitutionGroup="mule:abstract-message-processor" name="authorize">
+    <xs:annotation>
+      <xs:documentation>Starts OAuth authorization process. It must be called from a flow with an http:inbound-endpoint.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UnauthorizeType" substitutionGroup="mule:abstract-message-processor" name="unauthorize">
+    <xs:annotation>
+      <xs:documentation>Unauthorizes the connector, forcing to re-use authorize again before accessing any protected message processor.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="AuthorizeType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="state">
+          <xs:annotation>
+            <xs:documentation>Any value that you wish to be sent with the callback</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenUrl">
+          <xs:annotation>
+            <xs:documentation>The URL defined by the Service Provider to obtain an access token</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The Id with which the obtained access token will be stored. If not provided, then it will be the config name</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="authorizationUrl">
+          <xs:annotation>
+            <xs:documentation>The URL defined by the Service Provider where the resource owner will be redirected to grant authorization to the connector</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="UnauthorizeType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetUserInfoType" substitutionGroup="mule:abstract-message-processor" name="get-user-info">
+    <xs:annotation>
+      <xs:documentation>This processor returns information about a team member.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetUserInfoType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="id">
+          <xs:annotation>
+            <xs:documentation>ID of the desired User</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetUserInfoByNameType" substitutionGroup="mule:abstract-message-processor" name="get-user-info-by-name">
+    <xs:annotation>
+      <xs:documentation>This processor returns information about a team member.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetUserInfoByNameType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="username">
+          <xs:annotation>
+            <xs:documentation>Username of the desired User</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetUserListType" substitutionGroup="mule:abstract-message-processor" name="get-user-list">
+    <xs:annotation>
+      <xs:documentation>This processor returns a list of all users in the team. This includes deleted/deactivated users.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetUserListType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetChannelListType" substitutionGroup="mule:abstract-message-processor" name="get-channel-list">
+    <xs:annotation>
+      <xs:documentation>This processor returns a list of all channels in the team. This includes channels the caller is in, channels they are not currently in, and archived channels. The number of (non-deactivated) members in each channel is also returned.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetChannelListType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetChannelHistoryType" substitutionGroup="mule:abstract-message-processor" name="get-channel-history">
+    <xs:annotation>
+      <xs:documentation>This processor returns a portion of messages/events from the specified channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetChannelHistoryType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>Channel to fetch history for</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="latestTimestamp">
+          <xs:annotation>
+            <xs:documentation>End of time range of messages to include in results. Leave it blank to select current time.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="oldestTimestamp">
+          <xs:annotation>
+            <xs:documentation>Start of time range of messages to include in results. Leave it blank for timestamp 0</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" default="100" name="mountOfMessages">
+          <xs:annotation>
+            <xs:documentation>Number of messages to return, between 1 and 1000.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetChannelInfoType" substitutionGroup="mule:abstract-message-processor" name="get-channel-info">
+    <xs:annotation>
+      <xs:documentation>This processor returns information about a team channel specifying the ID.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetChannelInfoType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>Channel to get info on</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetChannelByNameType" substitutionGroup="mule:abstract-message-processor" name="get-channel-by-name">
+    <xs:annotation>
+      <xs:documentation>This processor returns information about a team channel specifyng the name.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetChannelByNameType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelName">
+          <xs:annotation>
+            <xs:documentation>Channel name to get info on</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="CreateChannelType" substitutionGroup="mule:abstract-message-processor" name="create-channel">
+    <xs:annotation>
+      <xs:documentation>This processor is used to create a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="CreateChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelName">
+          <xs:annotation>
+            <xs:documentation>Name of channel to create</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="RenameChannelType" substitutionGroup="mule:abstract-message-processor" name="rename-channel">
+    <xs:annotation>
+      <xs:documentation>This method renames a team channel. The only people who can rename a channel are team admins, or the person that originally created the channel. Others will recieve a "not_authorized" error.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="RenameChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>Channel to rename</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelName">
+          <xs:annotation>
+            <xs:documentation>New channel name</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="JoinChannelType" substitutionGroup="mule:abstract-message-processor" name="join-channel">
+    <xs:annotation>
+      <xs:documentation>This method is used to join a channel. If the channel does not exist, it is created.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="JoinChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelName">
+          <xs:annotation>
+            <xs:documentation>Name of the channel to Join</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="LeaveChannelType" substitutionGroup="mule:abstract-message-processor" name="leave-channel">
+    <xs:annotation>
+      <xs:documentation>This processor is used to leave a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="LeaveChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to Leave</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="ArchiveChannelType" substitutionGroup="mule:abstract-message-processor" name="archive-channel">
+    <xs:annotation>
+      <xs:documentation>This processor archives a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="ArchiveChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the Channel to Archive</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UnarchiveChannelType" substitutionGroup="mule:abstract-message-processor" name="unarchive-channel">
+    <xs:annotation>
+      <xs:documentation>This processor unarchives a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="UnarchiveChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the Channel to Unarchive</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="SetChannelTopicType" substitutionGroup="mule:abstract-message-processor" name="set-channel-topic">
+    <xs:annotation>
+      <xs:documentation>This processor is used to change the topic of a channel. The calling user must be a member of the channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="SetChannelTopicType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to change the topic</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="topic">
+          <xs:annotation>
+            <xs:documentation>New channel topic</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="SetChannelPurposeType" substitutionGroup="mule:abstract-message-processor" name="set-channel-purpose">
+    <xs:annotation>
+      <xs:documentation>This processor is used to change the purpose of a channel. The calling user must be a member of the channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="SetChannelPurposeType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to change the purpose</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="purpose">
+          <xs:annotation>
+            <xs:documentation>New channel purpose</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="PostMessageType" substitutionGroup="mule:abstract-message-processor" name="post-message">
+    <xs:annotation>
+      <xs:documentation>This processor posts a message to a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="PostMessageType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="message">
+          <xs:annotation>
+            <xs:documentation>Message to post</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to post the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="username">
+          <xs:annotation>
+            <xs:documentation>Name to show in the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="iconURL">
+          <xs:annotation>
+            <xs:documentation>Icon URL of the icon to show in the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute xmlns="http://www.mulesoft.org/schema/mule/slack" type="booleanType" use="optional" name="asUser">
+          <xs:annotation>
+            <xs:documentation>Boolean indicating if the message is showed as a User or as a Bot</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="PostMessageWithAttachmentType" substitutionGroup="mule:abstract-message-processor" name="post-message-with-attachment">
+    <xs:annotation>
+      <xs:documentation>This processor post a message with attachments in a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="FieldObjectType">
+    <xs:sequence></xs:sequence>
+    <xs:attribute type="xs:string" use="optional" name="title">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="value">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="ref">
+      <xs:annotation>
+        <xs:documentation>The reference object for this parameter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="ChatAttachmentObjectType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="fields">
+        <xs:annotation>
+          <xs:documentation></xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="field">
+              <xs:complexType>
+                <xs:complexContent>
+                  <xs:extension xmlns="http://www.mulesoft.org/schema/mule/slack" base="FieldObjectType">
+                    <xs:attribute type="xs:string" use="optional" name="value-ref"></xs:attribute>
+                  </xs:extension>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="optional" name="ref">
+            <xs:annotation>
+              <xs:documentation>The reference object for this parameter</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" use="optional" name="fallback">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="color">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="pretext">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="authorName">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="authorLink">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="authorIcon">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="title">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="titleLink">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="text">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="imageUrl">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute type="xs:string" use="optional" name="ref">
+      <xs:annotation>
+        <xs:documentation>The reference object for this parameter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="PostMessageWithAttachmentType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="1" name="chat-attachment">
+            <xs:annotation>
+              <xs:documentation>Chat attachment</xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension xmlns="http://www.mulesoft.org/schema/mule/slack" base="ChatAttachmentObjectType"></xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" maxOccurs="1" name="field">
+            <xs:annotation>
+              <xs:documentation>Field</xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension xmlns="http://www.mulesoft.org/schema/mule/slack" base="FieldObjectType"></xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="message">
+          <xs:annotation>
+            <xs:documentation>Message to post</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to post the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="username">
+          <xs:annotation>
+            <xs:documentation>Name to show in the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="iconURL">
+          <xs:annotation>
+            <xs:documentation>Icon URL of the icon to show in the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute xmlns="http://www.mulesoft.org/schema/mule/slack" type="booleanType" use="optional" name="asUser">
+          <xs:annotation>
+            <xs:documentation>Boolean indicating if the message is showed as a User or as a Bot</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="DeleteMessageType" substitutionGroup="mule:abstract-message-processor" name="delete-message">
+    <xs:annotation>
+      <xs:documentation>This processor deletes a message from a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="DeleteMessageType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="timeStamp">
+          <xs:annotation>
+            <xs:documentation>TimeStamp of the message to delete</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the channel of the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UpdateMessageType" substitutionGroup="mule:abstract-message-processor" name="update-message">
+    <xs:annotation>
+      <xs:documentation>This processor updates a message in a channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="UpdateMessageType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="timeStamp">
+          <xs:annotation>
+            <xs:documentation>TimeStamp of the message to delete</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the channel of the message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="message">
+          <xs:annotation>
+            <xs:documentation>New message</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="OpenDirectMessageChannelType" substitutionGroup="mule:abstract-message-processor" name="open-direct-message-channel">
+    <xs:annotation>
+      <xs:documentation>This processor opens a direct message channel with another member of your Slack team.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="OpenDirectMessageChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="userId">
+          <xs:annotation>
+            <xs:documentation>User ID to open a direct message channel with.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="CloseDirectMessageChannelType" substitutionGroup="mule:abstract-message-processor" name="close-direct-message-channel">
+    <xs:annotation>
+      <xs:documentation>Closes a direct message channel.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="CloseDirectMessageChannelType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>Direct message channel ID to close.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="ListDirectMessageChannelsType" substitutionGroup="mule:abstract-message-processor" name="list-direct-message-channels">
+    <xs:annotation>
+      <xs:documentation>This processor returns a list of all im channels that the user has.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="ListDirectMessageChannelsType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetDMHistoryType" substitutionGroup="mule:abstract-message-processor" name="get-d-m-history">
+    <xs:annotation>
+      <xs:documentation>This processor returns a portion of messages/events from the specified direct message channel. To read the entire history for a direct message channel, call the method with no latest or oldest arguments.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetDMHistoryType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>Channel to fetch history for</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="latestTimestamp">
+          <xs:annotation>
+            <xs:documentation>End of time range of messages to include in results. Leave it blank to select current time.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="oldestTimestamp">
+          <xs:annotation>
+            <xs:documentation>Start of time range of messages to include in results. Leave it blank for timestamp 0</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" default="100" name="mountOfMessages">
+          <xs:annotation>
+            <xs:documentation>Number of messages to return, between 1 and 1000.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetGroupListType" substitutionGroup="mule:abstract-message-processor" name="get-group-list">
+    <xs:annotation>
+      <xs:documentation>This processor returns a list of groups in the team that the caller is in and archived groups that the caller was in. The list of (non-deactivated) members in each group is also returned.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetGroupListType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetGroupHistoryType" substitutionGroup="mule:abstract-message-processor" name="get-group-history">
+    <xs:annotation>
+      <xs:documentation>This processor returns a portion of messages/events from the specified private group. To read the entire history for a group, call the method with no latest or oldest arguments.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetGroupHistoryType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="groupID">
+          <xs:annotation>
+            <xs:documentation>Group to fetch history for</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="latestTimestamp">
+          <xs:annotation>
+            <xs:documentation>End of time range of messages to include in results. Leave it blank to select current time.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="oldestTimestamp">
+          <xs:annotation>
+            <xs:documentation>Start of time range of messages to include in results. Leave it blank for timestamp 0</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" default="100" name="mountOfMessages">
+          <xs:annotation>
+            <xs:documentation>Number of messages to return, between 1 and 1000.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="SetGroupTopicType" substitutionGroup="mule:abstract-message-processor" name="set-group-topic">
+    <xs:annotation>
+      <xs:documentation>This processor is used to change the topic of a private group. The calling user must be a member of the private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="SetGroupTopicType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to set the new topic</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="topic">
+          <xs:annotation>
+            <xs:documentation>The new topic</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="SetGroupPurposeType" substitutionGroup="mule:abstract-message-processor" name="set-group-purpose">
+    <xs:annotation>
+      <xs:documentation>This processor is used to change the purpose of a private group. The calling user must be a member of the private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="SetGroupPurposeType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to set the new purpose</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="purpose">
+          <xs:annotation>
+            <xs:documentation>The new group purpose</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="CreateGroupType" substitutionGroup="mule:abstract-message-processor" name="create-group">
+    <xs:annotation>
+      <xs:documentation>This processor creates a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="CreateGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="groupName">
+          <xs:annotation>
+            <xs:documentation>Name of the group to create</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="CloseGroupType" substitutionGroup="mule:abstract-message-processor" name="close-group">
+    <xs:annotation>
+      <xs:documentation>This processor closes a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="CloseGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to close</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="OpenGroupType" substitutionGroup="mule:abstract-message-processor" name="open-group">
+    <xs:annotation>
+      <xs:documentation>This processor opens a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="OpenGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to open</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="ArchiveGroupType" substitutionGroup="mule:abstract-message-processor" name="archive-group">
+    <xs:annotation>
+      <xs:documentation>This processor archives a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="ArchiveGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to archive</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UnarchiveGroupType" substitutionGroup="mule:abstract-message-processor" name="unarchive-group">
+    <xs:annotation>
+      <xs:documentation>This processor unarchives a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="UnarchiveGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the group to unarchive</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="RenameGroupType" substitutionGroup="mule:abstract-message-processor" name="rename-group">
+    <xs:annotation>
+      <xs:documentation>This processor renames a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="RenameGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="groupId">
+          <xs:annotation>
+            <xs:documentation>ID of the group to rename</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="groupName">
+          <xs:annotation>
+            <xs:documentation>Channel</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="GetGroupInfoType" substitutionGroup="mule:abstract-message-processor" name="get-group-info">
+    <xs:annotation>
+      <xs:documentation>This processor returns information about a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="GetGroupInfoType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the group to get info on</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="LeaveGroupType" substitutionGroup="mule:abstract-message-processor" name="leave-group">
+    <xs:annotation>
+      <xs:documentation>This processor is used to leave a private group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="LeaveGroupType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelId">
+          <xs:annotation>
+            <xs:documentation>ID of the group to leave</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UploadFileType" substitutionGroup="mule:abstract-message-processor" name="upload-file">
+    <xs:annotation>
+      <xs:documentation>This processor allows you to create or upload an existing file.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="UploadFileType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to upload a file</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="fileName">
+          <xs:annotation>
+            <xs:documentation>File name</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="fileType">
+          <xs:annotation>
+            <xs:documentation>File type</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="title">
+          <xs:annotation>
+            <xs:documentation>Message title</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="initialComment">
+          <xs:annotation>
+            <xs:documentation>Message initial comment</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="filePath">
+          <xs:annotation>
+            <xs:documentation>Path of the file to upload</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="UploadFileAsInputStreamsType" substitutionGroup="mule:abstract-message-processor" name="upload-file-as-input-streams">
+    <xs:annotation>
+      <xs:documentation>This processor allows you to create or upload an existing file.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="UploadFileAsInputStreamsType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the channel to upload a file</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="fileName">
+          <xs:annotation>
+            <xs:documentation>File name</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="fileType">
+          <xs:annotation>
+            <xs:documentation>File type</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="title">
+          <xs:annotation>
+            <xs:documentation>Message title</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="initialComment">
+          <xs:annotation>
+            <xs:documentation>Message initial comment</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" default="#[payload]" name="inputStream-ref">
+          <xs:annotation>
+            <xs:documentation>Input stream of the file to upload</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="optional" name="accessTokenId">
+          <xs:annotation>
+            <xs:documentation>The id of the access token that will be used to authenticate the call</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element xmlns="http://www.mulesoft.org/schema/mule/slack" xmlns:mule="http://www.mulesoft.org/schema/mule/core" type="RetrieveMessagesType" substitutionGroup="mule:abstract-inbound-endpoint" name="retrieve-messages">
+    <xs:annotation>
+      <xs:documentation>This Source retrieves messages from the desired channel, private group or direct message channel</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  <xs:complexType name="RetrieveMessagesType">
+    <xs:complexContent>
+      <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractInboundEndpointType">
+        <xs:attribute type="xs:string" use="required" name="config-ref">
+          <xs:annotation>
+            <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute xmlns="http://www.mulesoft.org/schema/mule/slack" type="integerType" use="required" name="messageRetrieverInterval">
+          <xs:annotation>
+            <xs:documentation>Pool interval</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute type="xs:string" use="required" name="channelID">
+          <xs:annotation>
+            <xs:documentation>ID of the channel/group/DMC to poll messages</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="OnNoTokenPolicyEnumType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="EXCEPTION"></xs:enumeration>
+          <xs:enumeration value="STOP_FLOW"></xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="integerType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:integer"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="decimalType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="floatType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:float"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="doubleType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:double"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="dateTimeType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:dateTime"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="longType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:long"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="byteType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:byte"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="booleanType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:boolean"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="anyUriType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:anyURI"></xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  <xs:simpleType name="charType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"></xs:minLength>
+          <xs:maxLength value="1"></xs:maxLength>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:propertyPlaceholderType"></xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+</xs:schema>
