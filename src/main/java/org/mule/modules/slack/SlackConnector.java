@@ -30,6 +30,8 @@ import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
 import org.mule.modules.slack.client.rtm.ConfigurableHandler;
+import org.mule.modules.slack.config.BasicSlackConfig;
+import org.mule.modules.slack.config.SlackOAuth2Config;
 import org.mule.modules.slack.metadata.AllChannelCategory;
 import org.mule.modules.slack.metadata.ChannelCategory;
 import org.mule.modules.slack.metadata.GroupCategory;
@@ -38,9 +40,8 @@ import org.mule.modules.slack.retrievers.ChannelMessageRetriever;
 import org.mule.modules.slack.retrievers.DirectMessageRetriever;
 import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
-import org.mule.modules.slack.config.SlackOAuth2Config;
-import org.mule.modules.slack.config.BasicSlackConfig;
 
+import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -735,9 +736,12 @@ public class SlackConnector {
         return slack().sendFile(channelID, fileName, fileType, title, initialComment, inputStream);
     }
 
+    //************
+    // Source methods
+    //************
 
     @Source(friendlyName = "Retrieve events")
-    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Optional Boolean messages, @Placement(group = "Events to accept") @Optional Boolean userTyping, @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Optional Boolean directMessages, @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Optional Boolean onlyNewMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException {
+    public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Optional Boolean messages, @Placement(group = "Events to accept") @Optional Boolean userTyping, @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Optional Boolean directMessages, @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Optional Boolean onlyNewMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException, InterruptedException, DeploymentException {
         slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents), falseIfNull(userTyping), falseIfNull(onlyNewMessages)));
         System.out.println("Ending!");
         return null;
@@ -751,10 +755,6 @@ public class SlackConnector {
         }
     }
 
-    //************
-    // Source methods
-    //************
-
     /**
      * This Source retrieves messages from the desired channel, private group or direct message channel
      *
@@ -767,7 +767,7 @@ public class SlackConnector {
      * @return Messages
      * @throws Exception When the SourceCallback fails processing the messages
      */
-    @Source(friendlyName = "Retrieve messages")
+    @Source(friendlyName = "Retrieve messages (DEPRECATED)")
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
 

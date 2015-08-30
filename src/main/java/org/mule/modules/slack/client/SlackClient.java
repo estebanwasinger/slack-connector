@@ -594,13 +594,18 @@ public class SlackClient {
         return new JSONObject(s).getString("url");
     }
 
-    public void startRealTimeCommunication(EventHandler messageHandler) {
-        slackMessageHandler = new SlackMessageHandler(getWebSockerURI());
+    public void startRealTimeCommunication(EventHandler messageHandler) throws DeploymentException, InterruptedException, IOException {
+        slackMessageHandler = new SlackMessageHandler(this.getWebSockerURI());
         slackMessageHandler.messageHandler = messageHandler;
-        try {
-            slackMessageHandler.connect();
-        } catch (IOException | DeploymentException | InterruptedException e) {
-            throw new RuntimeException("Error in RTM communication", e.getCause());
+        while(true) {
+            try {
+                slackMessageHandler.connect();
+            } catch (Exception e) {
+                System.out.println(e.getMessage() + " --> Retrying RTM communication" );
+                Thread.sleep(20000);
+                slackMessageHandler = new SlackMessageHandler(this.getWebSockerURI());
+                slackMessageHandler.messageHandler = messageHandler;
+            }
         }
     }
 

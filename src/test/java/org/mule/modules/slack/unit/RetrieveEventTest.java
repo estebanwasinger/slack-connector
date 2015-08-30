@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
-import static org.hamcrest.core.IsInstanceOf.any;
 import static org.mockito.Mockito.*;
 
 public class RetrieveEventTest {

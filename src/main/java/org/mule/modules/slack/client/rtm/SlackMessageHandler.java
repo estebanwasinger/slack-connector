@@ -2,6 +2,7 @@ package org.mule.modules.slack.client.rtm;
 
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.client.ClientProperties;
+import org.mule.modules.slack.client.exceptions.SlackException;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -32,18 +33,30 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
             }
 
         }, URI.create(webSocketUrl));
-        startConnectionMonitoring();
         while (true) {
-            Thread.sleep(2000);
+            try {
+                if (lastPingSent != lastPingAck) {
+                    // disconnection happened
+                    websocketSession.close();
+                    lastPingSent = 0;
+                    lastPingAck = 0;
+                    if (reconnectOnDisconnection) {
+                        connect();
+                        continue;
+                    }
+                } else {
+                    lastPingSent = getNextMessageId();
+                    websocketSession.getBasicRemote().sendText("{\"type\":\"ping\",\"id\":" + lastPingSent + "}");
+                }
+                Thread.sleep(20000);
+            } catch (Exception e) {
+                websocketSession.close();
+                throw new SlackException("Error in RTM Connection");
+            }
         }
     }
 
-    public Session getWebsocketSession() {
-        return websocketSession;
-    }
-
     public void onMessage(String message) {
-        System.out.println(message);
         if (message.contains("{\"type\":\"pong\",\"reply_to\"")) {
             int rightBracketIdx = message.indexOf('}');
             String toParse = message.substring(26, rightBracketIdx);
@@ -62,34 +75,4 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
         return messageId++;
     }
 
-    private void startConnectionMonitoring() {
-        Thread connectionMonitoringThread = new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        if (lastPingSent != lastPingAck) {
-                            // disconnection happened
-                            websocketSession.close();
-                            lastPingSent = 0;
-                            lastPingAck = 0;
-                            if (reconnectOnDisconnection) {
-                                connect();
-                                continue;
-                            }
-                        } else {
-                            lastPingSent = getNextMessageId();
-                            websocketSession.getBasicRemote().sendText("{\"type\":\"ping\",\"id\":" + lastPingSent + "}");
-                        }
-                        Thread.sleep(20000);
-                    } catch (InterruptedException e) {
-                        break;
-                    } catch (IOException | DeploymentException e) {
-                        throw new RuntimeException("Error in RTM Connection", e.getCause());
-                    }
-                }
-            }
-        };
-        connectionMonitoringThread.start();
-    }
 }
