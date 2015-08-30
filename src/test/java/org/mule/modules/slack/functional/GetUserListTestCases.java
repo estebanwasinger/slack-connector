@@ -12,6 +12,6 @@ public class GetUserListTestCases extends AbstractSlackTestCase {
     @Test
     public void testGetUserList(){
         List<User> userList = getConnector().getUserList();
-        Assert.assertNotEquals(userList.isEmpty(), true);
+        Assert.assertEquals(userList.isEmpty(), false);
     }
 }

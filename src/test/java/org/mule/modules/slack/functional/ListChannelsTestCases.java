@@ -13,7 +13,7 @@ public class ListChannelsTestCases extends AbstractSlackTestCase {
     public void testListChannel() {
 
         List<Channel> result = getConnector().getChannelList();
-        Assert.assertNotEquals(result.isEmpty(), true);
+        Assert.assertEquals(result.isEmpty(), false);
     }
 
 }

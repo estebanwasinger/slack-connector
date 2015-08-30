@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by estebanwasinger on 8/8/15.
  */
-public class RenameChannelTestCases extends AbstractSlackTestCase {
+public class  RenameChannelTestCases extends AbstractSlackTestCase {
 
     @Test
     public void testRenameChannel() throws UserNotFoundException, InterruptedException {
