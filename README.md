@@ -6,8 +6,7 @@ __Slack Anypoint Connector__ now is a MuleSoft Community Certified Connector, wh
 The connector can be download directly from the [Anypoint Exchange](https://www.mulesoft.com/exchange/#!/slack-integration-connector)!!
 
 # Mule supported versions
-- Mule 3.6
-- Mule 3.5
+- Mule 3.5+
 
 # Documentation
 http://estebanwasinger.github.io/slack-connector/
