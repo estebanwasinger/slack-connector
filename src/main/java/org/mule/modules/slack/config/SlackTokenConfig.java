@@ -31,8 +31,8 @@ public class SlackTokenConfig implements BasicSlackConfig
     @TestConnectivity
     public void connect()
         throws ConnectionException {
-        slack = new SlackClient(accessToken);
-        if(!slack.isConnected()){
+        SlackClient slackTestClient = new SlackClient(accessToken);
+        if(!slackTestClient.isConnected()){
             throw new ConnectionException(ConnectionExceptionCode.INCORRECT_CREDENTIALS,"Invalid Token", "Invalid Token");
         }
     }
@@ -54,6 +54,7 @@ public class SlackTokenConfig implements BasicSlackConfig
     }
 
     public void setAccessToken(String accessToken) {
+        slack = new SlackClient(accessToken);
         this.accessToken = accessToken;
     }
 
