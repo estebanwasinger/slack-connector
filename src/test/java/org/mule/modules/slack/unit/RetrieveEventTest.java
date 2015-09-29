@@ -31,7 +31,8 @@ public class RetrieveEventTest {
 
         connector = new SlackConnector();
         SlackTokenConfig tokenConfig = new SlackTokenConfig();
-        tokenConfig.connect(properties.getProperty("config-type.accessToken"));
+        tokenConfig.setAccessToken(properties.getProperty("config-type.accessToken"));
+        tokenConfig.connect();
         connector.setSlackConfig(tokenConfig);
 
         callback = mock(SourceCallback.class);

@@ -8,8 +8,7 @@ package org.mule.modules.slack.config;
 import org.mule.api.ConnectionException;
 import org.mule.api.ConnectionExceptionCode;
 import org.mule.api.annotations.*;
-import org.mule.api.annotations.components.ConnectionManagement;
-import org.mule.api.annotations.param.ConnectionKey;
+import org.mule.api.annotations.components.Configuration;
 import org.mule.modules.slack.client.SlackClient;
 
 /**
@@ -17,56 +16,26 @@ import org.mule.modules.slack.client.SlackClient;
  *
  * @author Esteban Wasinger.
  */
-@ConnectionManagement(configElementName = "config-type", friendlyName = "Token Configuration")
+@Configuration(configElementName = "config-type", friendlyName = "Token Configuration")
 public class SlackTokenConfig implements BasicSlackConfig
 {
-
     SlackClient slack;
+
+    @Configurable
     String accessToken;
 
     /**
      *
-     * @param accessToken
      * @throws ConnectionException
      */
-    @Connect
     @TestConnectivity
-    public void connect(@ConnectionKey String accessToken)
+    public void connect()
         throws ConnectionException {
         slack = new SlackClient(accessToken);
         if(!slack.isConnected()){
             throw new ConnectionException(ConnectionExceptionCode.INCORRECT_CREDENTIALS,"Invalid Token", "Invalid Token");
-        }else{
-            this.accessToken = accessToken;
         }
     }
-
-    /**
-     * Disconnect
-     */
-    @Disconnect
-    public void disconnect() {
-        /*
-         * CODE FOR CLOSING A CONNECTION GOES IN HERE
-         */
-    }
-
-    /**
-     * Are we connected
-     */
-    @ValidateConnection
-    public boolean isConnected() {
-       return slack != null;
-    }
-
-    /**
-     * Are we connected
-     */
-    @ConnectionIdentifier
-    public String connectionId() {
-        return "001";
-    }
-
 
     public SlackClient getSlackClient() {
         return slack;
@@ -80,11 +49,15 @@ public class SlackTokenConfig implements BasicSlackConfig
         this.accessToken = accessToken;
     }
 
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
     public Boolean isAuthorized() {
-        if(accessToken == null){
-            return false;
-        } else {
-            return true;
-        }
+        return accessToken != null;
     }
 }
