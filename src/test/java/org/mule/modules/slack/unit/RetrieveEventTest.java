@@ -75,8 +75,8 @@ public class RetrieveEventTest {
         try (final InputStream input = RetrieveEventTest.class.getResourceAsStream("/" + automationCredentialsFile)) {
             Validate.notNull(input, String.format("%s could not be found", automationCredentialsFile));
             properties.load(input);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Can not load automation credentials file: %s", automationCredentialsFile), e);
+        } catch (IOException | NullPointerException e) {
+            throw new RuntimeException(String.format("Can not load automation credentials file: %s . Please place the credentials file in ./slack-connector/src/test/resources folder.", automationCredentialsFile), e);
         }
         return properties;
     }
