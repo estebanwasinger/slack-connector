@@ -20,6 +20,9 @@
         <licensePath>LICENSE.md</licensePath>
         <devkit.studio.package.skip>false</devkit.studio.package.skip>
         <jersey-client.version>2.11</jersey-client.version>
+        <sonar.exclusions>
+            **/client/model/**/*
+        </sonar.exclusions>
     </properties>
 
 
