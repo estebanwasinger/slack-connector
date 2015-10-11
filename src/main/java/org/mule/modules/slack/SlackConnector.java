@@ -742,6 +742,13 @@ public class SlackConnector {
 
     @Source(friendlyName = "Retrieve events")
     public Message retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Optional Boolean messages, @Placement(group = "Events to accept") @Optional Boolean userTyping, @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Optional Boolean directMessages, @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Optional Boolean onlyNewMessages, @Placement(group = "Events Filters") @Optional Boolean ignoreSelfEvents) throws IOException, InterruptedException, DeploymentException {
+
+        if (getSlackConfig() instanceof SlackOAuth2Config) {
+            logger.error("Retrieve Events source doesn't work with OAuth 2 configuration, please use Token Config");
+            logger.error("Shutting down Retrieving of Messages!");
+            return new Message();
+        }
+
         slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, slack(), falseIfNull(messages), falseIfNull(directMessages), falseIfNull(ignoreSelfEvents), falseIfNull(userTyping), falseIfNull(onlyNewMessages)));
         System.out.println("Ending!");
         return null;
@@ -771,12 +778,13 @@ public class SlackConnector {
     public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval, @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
         String oldestTimeStamp;
 
-        if (getSlackConfig().getClass().equals(SlackOAuth2Config.class)) {
-            while (true) {
-                logger.error("Retrieve Messages source doesn't work with OAuth 2 configuration, please use Connection Management");
-                Thread.sleep(5000);
-            }
+        if (getSlackConfig() instanceof SlackOAuth2Config) {
+            logger.error("Retrieve Messages source doesn't work with OAuth 2 configuration, please use Token Config");
+            logger.error("Shutting down Retrieving of Messages!");
+            return new Message();
         }
+
+        logger.warn("This Retrieve Messages Endpoint is deprecated. Please use 'Retrieve Events' endpoint.");
 
         while (!getSlackConfig().isAuthorized()) {
             Thread.sleep(1000);
@@ -789,11 +797,8 @@ public class SlackConnector {
 
         while (true) {
             Thread.sleep(messageRetrieverInterval);
-            //System.out.println("Retrieving messages!");
             List<Message> messages = messageRetriever.retrieve(slack(), channelID, null, oldestTimeStamp, "1000");
-            //System.out.println("Oldest TS:" + oldestTimeStamp);
             if (messages.isEmpty()) {
-                //  System.out.println("No Updates!");
             } else {
                 oldestTimeStamp = messages.get(0).getTs();
             }
@@ -807,17 +812,17 @@ public class SlackConnector {
     }
 
     private MessageRetriever getMessageVerifierForChannel(String channelID) throws Exception {
-        if (channelID.toLowerCase().toLowerCase().startsWith("g")) {
+        if (channelID.toLowerCase().startsWith("g")) {
             logger.info("Started retrieving messages of channel: "+slack().getGroupInfo(channelID).getName() +"!");
             return new GroupMessageRetriever();
         }
 
-        if (channelID.toLowerCase().toLowerCase().startsWith("c")) {
+        if (channelID.toLowerCase().startsWith("c")) {
             logger.info("Started retrieving messages of channel: "+slack().getChannelById(channelID).getName() +"!");
             return new ChannelMessageRetriever();
         }
 
-        if (channelID.toLowerCase().toLowerCase().startsWith("d")) {
+        if (channelID.toLowerCase().startsWith("d")) {
             logger.info("Started retrieving messages of direct message channel!");
             return new DirectMessageRetriever();
         }
