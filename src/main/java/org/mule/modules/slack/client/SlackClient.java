@@ -603,8 +603,7 @@ public class SlackClient {
             try {
                 slackMessageHandler.connect();
             } catch (Exception e) {
-                logger.error("Error Message: " + e.getMessage());
-                logger.error("Error Cause: " + e.getCause());
+                logger.error("Error Cause: ", e);
                 logger.warn("Retrying RTM Communication in 20 Seconds");
                 Thread.sleep(20000);
                 logger.warn("Starting RTM Communication");
