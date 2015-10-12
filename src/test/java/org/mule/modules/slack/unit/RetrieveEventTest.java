@@ -7,6 +7,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mule.api.callback.SourceCallback;
 import org.mule.modules.slack.SlackConnector;
+import org.mule.modules.slack.client.model.chat.Message;
 import org.mule.modules.slack.config.SlackTokenConfig;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class RetrieveEventTest {
     SlackConnector connector;
     private static final int THREAD_TIMEOUT_SECONDS = 10;
     private static final String AUTOMATION_CREDENTIALS = "automation-credentials.properties";
+    private static final String CHANNEL_ID = "D08ET3WF5";
 
     @Before
     public void setUp() throws Exception {
@@ -38,7 +40,6 @@ public class RetrieveEventTest {
         callback = mock(SourceCallback.class);
         when(callback.process(anyObject())).then(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                System.out.println(invocationOnMock.getArguments()[0]);
                 return invocationOnMock.getArguments()[0];
             }
         });
@@ -61,13 +62,32 @@ public class RetrieveEventTest {
         Future<Void> future = singleThreadExecutor.submit(callable);
         singleThreadExecutor.shutdown();
         Thread.sleep(8000);
-        connector.postMessage("Test","D08ET3WF5",null,null,true);
+        connector.postMessage("Test", CHANNEL_ID, null, null, true);
         singleThreadExecutor.awaitTermination(THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
+        verify(callback, atLeast(1)).process(any(Map.class));
+    }
 
-        verify(callback, times(1));
+    @Test
+    public void testRetrieveMessages() throws Exception {
+        doReturn(callback).when(callback).process(any(Message.class));
 
+        Callable<Void> callable = new Callable<Void>() {
 
+            @Override
+            public Void call() throws Exception {
+                connector.retrieveMessages(callback, 1000, CHANNEL_ID);
+                return null;
+            }
+        };
+        ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+        Future<Void> future = singleThreadExecutor.submit(callable);
+        singleThreadExecutor.shutdown();
+        Thread.sleep(3000);
+        connector.postMessage("Test", CHANNEL_ID, null, null, true);
+        singleThreadExecutor.awaitTermination(THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        verify(callback, times(1)).process(any(Message.class));
     }
 
     private static Properties readAutomationCredentialsFromFile(String automationCredentialsFile) {
