@@ -87,7 +87,7 @@ public class RetrieveEventTest {
         connector.postMessage("Test", CHANNEL_ID, null, null, true);
         singleThreadExecutor.awaitTermination(THREAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        verify(callback, times(1)).process(any(Message.class));
+        verify(callback, atLeast(1)).process(any(Message.class));
     }
 
     private static Properties readAutomationCredentialsFromFile(String automationCredentialsFile) {
