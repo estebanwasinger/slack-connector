@@ -51,7 +51,7 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
                 Thread.sleep(20000);
             } catch (Exception e) {
                 websocketSession.close();
-                throw new SlackException("Error in RTM Connection");
+                throw new SlackException("Error in RTM Connection", e);
             }
         }
     }
@@ -65,8 +65,7 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
         }
         if (message.contains("{\"type\":\"hello\"})")) {
             return;
-        }
-        else {
+        } else {
             messageHandler.onMessage(message);
         }
     }

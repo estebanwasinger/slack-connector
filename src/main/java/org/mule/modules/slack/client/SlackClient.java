@@ -11,6 +11,7 @@ package org.mule.modules.slack.client;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.log4j.Logger;
 import org.glassfish.jersey.uri.UriComponent;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,6 +44,7 @@ public class SlackClient {
     private Gson mapper;
     private SlackRequester slackRequester;
     private SlackMessageHandler slackMessageHandler;
+    private static final Logger logger = Logger.getLogger(SlackClient.class);
 
     public String getSelfId() {
         return selfId;
@@ -98,7 +100,7 @@ public class SlackClient {
     public Boolean leaveChannel(String channelId) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHANNELS_LEAVE)
-                .queryParam("channel",channelId);
+                .queryParam("channel", channelId);
         String output = slackRequester.sendRequest(webTarget);
 
         return new JSONObject(output).getBoolean("ok");
@@ -189,7 +191,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean kickUserFromChannel(String channelID, String user){
+    public Boolean kickUserFromChannel(String channelID, String user) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHANNELS_KICK)
                 .queryParam("channel", channelID)
@@ -199,7 +201,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean inviteUserToChannel(String channelID, String user){
+    public Boolean inviteUserToChannel(String channelID, String user) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHANNELS_INVITE)
                 .queryParam("channel", channelID)
@@ -209,7 +211,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean unarchiveChannel(String channelID){
+    public Boolean unarchiveChannel(String channelID) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHANNELS_UNARCHIVE)
                 .queryParam("channel", channelID);
@@ -274,7 +276,7 @@ public class SlackClient {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHAT_POSTMESSAGE)
                 .queryParam("channel", channelId)
-                .queryParam("text",  UriComponent.encode(message, UriComponent.Type.QUERY_PARAM_SPACE_ENCODED))
+                .queryParam("text", UriComponent.encode(message, UriComponent.Type.QUERY_PARAM_SPACE_ENCODED))
                 .queryParam("username", username)
                 .queryParam("icon_url", iconUrl)
                 .queryParam("as_user", String.valueOf(asUser));
@@ -284,7 +286,7 @@ public class SlackClient {
         return mapper.fromJson(output, MessageResponse.class);
     }
 
-    public MessageResponse sendMessageWithAttachment(String message, String channelId, String username, String iconUrl,ChatAttachment chatAttachment, Boolean asUser) {
+    public MessageResponse sendMessageWithAttachment(String message, String channelId, String username, String iconUrl, ChatAttachment chatAttachment, Boolean asUser) {
         List<ChatAttachment> chatAttachmentArrayList = new ArrayList<ChatAttachment>();
         chatAttachmentArrayList.add(chatAttachment);
 
@@ -482,7 +484,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean kickUserFromGroup(String channelID, String user){
+    public Boolean kickUserFromGroup(String channelID, String user) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.GROUPS_KICK)
                 .queryParam("channel", channelID)
@@ -493,7 +495,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean inviteUserToGroup(String channelID, String user){
+    public Boolean inviteUserToGroup(String channelID, String user) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.GROUPS_INVITE)
                 .queryParam("channel", channelID)
@@ -504,7 +506,7 @@ public class SlackClient {
         return new JSONObject(output).getBoolean("ok");
     }
 
-    public Boolean unarchiveGroup(String groupID){
+    public Boolean unarchiveGroup(String groupID) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.GROUPS_UNARCHIVE)
                 .queryParam("channel", groupID);
@@ -542,7 +544,7 @@ public class SlackClient {
     // File methods
     //******************
     //TODO -- Delete duplicated code
-    public FileUploadResponse sendFile(String channelId, String fileName, String fileType, String title, String initialComment, InputStream file){
+    public FileUploadResponse sendFile(String channelId, String fileName, String fileType, String title, String initialComment, InputStream file) {
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.FILES_UPLOAD)
                 .queryParam("channels", channelId)
@@ -553,7 +555,7 @@ public class SlackClient {
 
         String stringResponse = SlackRequester.sendRequestWithFile(webTarget, file);
 
-        return mapper.fromJson(new JSONObject(stringResponse).getJSONObject("file").toString(),FileUploadResponse.class);
+        return mapper.fromJson(new JSONObject(stringResponse).getJSONObject("file").toString(), FileUploadResponse.class);
     }
 
     public FileUploadResponse sendFile(String channelId, String fileName, String fileType, String title, String initialComment, String filePath) throws IOException {
@@ -570,9 +572,9 @@ public class SlackClient {
             throw new IOException("File " + file.getAbsolutePath() + " does not exist!");
         }
 
-        String stringResponse = SlackRequester.sendAttachmentRequest(webTarget,file);
+        String stringResponse = SlackRequester.sendAttachmentRequest(webTarget, file);
 
-        return mapper.fromJson(new JSONObject(stringResponse).getJSONObject("file").toString(),FileUploadResponse.class);
+        return mapper.fromJson(new JSONObject(stringResponse).getJSONObject("file").toString(), FileUploadResponse.class);
     }
 
     //******************
@@ -587,7 +589,7 @@ public class SlackClient {
     // RTM
     //******************
 
-    public String getWebSockerURI(){
+    public String getWebSockerURI() {
         WebTarget webTarget = slackRequester.getWebTarget().path(Operations.RTM_START);
         String s = SlackRequester.sendRequest(webTarget);
         selfId = new JSONObject(s).getJSONObject("self").getString("id");
@@ -597,19 +599,22 @@ public class SlackClient {
     public void startRealTimeCommunication(EventHandler messageHandler) throws DeploymentException, InterruptedException, IOException {
         slackMessageHandler = new SlackMessageHandler(this.getWebSockerURI());
         slackMessageHandler.messageHandler = messageHandler;
-        while(true) {
+        while (true) {
             try {
                 slackMessageHandler.connect();
             } catch (Exception e) {
-                System.out.println(e.getMessage() + " --> Retrying RTM communication" );
+                logger.error("Error Message: " + e.getMessage());
+                logger.error("Error Cause: " + e.getCause());
+                logger.warn("Retrying RTM Communication in 20 Seconds");
                 Thread.sleep(20000);
+                logger.warn("Starting RTM Communication");
                 slackMessageHandler = new SlackMessageHandler(this.getWebSockerURI());
                 slackMessageHandler.messageHandler = messageHandler;
             }
         }
     }
 
-    public SlackMessageHandler getSlackMessageHandler(){
+    public SlackMessageHandler getSlackMessageHandler() {
         return slackMessageHandler;
     }
 
@@ -623,7 +628,7 @@ public class SlackClient {
                 .queryParam("channel", channelId)
                 .queryParam("latest", latest)
                 .queryParam("oldest", oldest)
-                .queryParam("count",count);
+                .queryParam("count", count);
 
         String output = SlackRequester.sendRequest(webTarget);
 
