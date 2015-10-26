@@ -46,9 +46,9 @@ public class SlackClient {
     private SlackMessageHandler slackMessageHandler;
     private static final Logger logger = Logger.getLogger(SlackClient.class);
 
-    public String getSelfId() {
-        return selfId;
-    }
+//    public String getSelfId() {
+//        return selfId;
+//    }
 
     private String selfId;
 
@@ -67,6 +67,15 @@ public class SlackClient {
                 .path(Operations.AUTH_TEST);
 
         return SlackRequester.sendRequest(webTarget);
+    }
+
+    public String getSelfId() {
+        WebTarget webTarget = slackRequester.getWebTarget()
+                .path(Operations.AUTH_TEST);
+
+        String output = SlackRequester.sendRequest(webTarget);
+        JSONObject slackResponse = new JSONObject(output);
+        return slackResponse.getString("user_id");
     }
 
     public Boolean isConnected() {
@@ -286,9 +295,7 @@ public class SlackClient {
         return mapper.fromJson(output, MessageResponse.class);
     }
 
-    public MessageResponse sendMessageWithAttachment(String message, String channelId, String username, String iconUrl, ChatAttachment chatAttachment, Boolean asUser) {
-        List<ChatAttachment> chatAttachmentArrayList = new ArrayList<ChatAttachment>();
-        chatAttachmentArrayList.add(chatAttachment);
+    public MessageResponse sendMessageWithAttachment(String message, String channelId, String username, String iconUrl, List<ChatAttachment> chatAttachmentArrayList, Boolean asUser) {
 
         WebTarget webTarget = slackRequester.getWebTarget()
                 .path(Operations.CHAT_POSTMESSAGE)

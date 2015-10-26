@@ -14,9 +14,11 @@ public class OnlyTypeObserver implements EventObserver {
         this.sourceCallback = sourceCallback;
     }
 
-    public void notify(Map<String, Object> message) throws Exception {
+    @Override
+    public boolean shouldSend(Map<String, Object> message) {
         if (message.get("type").equals(eventType)) {
-            sourceCallback.process(message);
+            return true;
         }
+        return false;
     }
 }

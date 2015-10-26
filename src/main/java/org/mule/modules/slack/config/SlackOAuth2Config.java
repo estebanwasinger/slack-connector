@@ -105,10 +105,6 @@ public class SlackOAuth2Config implements BasicSlackConfig {
     }
 
     public Boolean isAuthorized() {
-        if(accessToken == null){
-            return false;
-        } else {
-            return true;
-        }
+        return accessToken != null;
     }
 }

@@ -1,5 +1,8 @@
 package org.mule.modules.slack.functional;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.mule.modules.slack.client.model.chat.MessageResponse;
 import org.mule.modules.slack.client.model.chat.attachment.ChatAttachment;
@@ -19,7 +22,9 @@ public class PostMessageWithAttachmentTestCases extends AbstractSlackTestCase {
         Field field = new Field();
         field.setTitle("myOtherTitle");
         field.setValue("myOtherValue");
-        MessageResponse response = getConnector().postMessageWithAttachment(TEST_MESSAGE,CHANNEL_ID,null,null,chatAttachment,field,null);
+        chatAttachment.setFields(Arrays.asList(field));
+        List<ChatAttachment> chatAttachmentList = Arrays.asList(chatAttachment);
+        MessageResponse response = getConnector().postMessageWithAttachment(TEST_MESSAGE,CHANNEL_ID,null,null,chatAttachmentList,null);
     }
 
 }

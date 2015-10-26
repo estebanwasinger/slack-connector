@@ -2,57 +2,60 @@ package org.mule.modules.slack.client.rtm;
 
 import com.google.gson.Gson;
 import org.mule.api.callback.SourceCallback;
-import org.mule.modules.slack.client.SlackClient;
 import org.mule.modules.slack.client.rtm.filter.EventObserver;
-import org.mule.modules.slack.client.rtm.filter.MessagesObserver;
-import org.mule.modules.slack.client.rtm.filter.OnlyTypeObserver;
-import org.mule.modules.slack.client.rtm.filter.SelfEventsFilter;
+import org.mule.modules.slack.client.rtm.filter.SlackEventFilter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ConfigurableHandler implements EventHandler {
 
-    public static final String USER_TYPING_EVENT = "user_typing";
-    public static final String USER_FIELD = "user";
     SourceCallback sourceCallback;
-    Boolean ignoreSelfEvents;
-    SlackClient slackClient;
     Gson gson;
     Class<? extends Map> stringStringMap = HashMap.class;
-    private final List<EventObserver> observerList;
+    private List<EventObserver> observerList;
+    private List<SlackEventFilter> slackEventFilterList;
 
 
-    public ConfigurableHandler(SourceCallback sourceCallback, SlackClient slackClient, Boolean acceptMessages, Boolean onlyDMMessages, Boolean ignoreSelfEvents, Boolean userTyping, Boolean onlyNewMessages) {
-        this.slackClient = slackClient;
+    public ConfigurableHandler(SourceCallback sourceCallback, List<EventObserver> eventObserverList, List<SlackEventFilter> slackEventFilterList) {
         this.sourceCallback = sourceCallback;
-        this.ignoreSelfEvents = ignoreSelfEvents;
         gson = new Gson();
-        observerList = new ArrayList<>();
-
-        if (acceptMessages) {
-            observerList.add(new MessagesObserver(sourceCallback, onlyDMMessages, onlyNewMessages));
-        }
-        if (userTyping) {
-            observerList.add(new OnlyTypeObserver(sourceCallback, USER_TYPING_EVENT));
-        }
-
+        this.observerList = eventObserverList;
+        this.slackEventFilterList = slackEventFilterList;
     }
 
-    public void onMessage(String message) {
 
+    public void onMessage(String message) {
         Map messageMap = gson.fromJson(message, stringStringMap);
-        if (SelfEventsFilter.filter((String) messageMap.get(USER_FIELD), slackClient.getSelfId(), ignoreSelfEvents)) {
-            for (EventObserver eventObserver : observerList) {
+
+        if (shouldBeAccepted(messageMap, slackEventFilterList)) {
+            if (shouldBeSent(messageMap, observerList)) {
                 try {
-                    eventObserver.notify(messageMap);
+                    sourceCallback.process(message);
                 } catch (Exception e) {
-                    throw new RuntimeException("Error notifying observer", e);
+                    e.printStackTrace();
                 }
             }
         }
+    }
+
+    private boolean shouldBeAccepted(Map<String, Object> message, List<SlackEventFilter> filterList) {
+        for (SlackEventFilter slackEventFilter : filterList) {
+            if (!slackEventFilter.shouldAccept(message)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean shouldBeSent(Map<String, Object> message, List<EventObserver> observerList) {
+        for (EventObserver eventObserver : observerList) {
+            if (eventObserver.shouldSend(message)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

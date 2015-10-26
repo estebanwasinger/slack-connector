@@ -17,18 +17,21 @@ public class MessagesObserver implements EventObserver {
         this.onlyNewMessages = onlyNewMessages;
     }
 
-    public void notify(Map<String, Object> message) throws Exception {
+    @Override
+    public boolean shouldSend(Map<String, Object> message) {
+        boolean returnValue = false;
         if (message.get("type").equals("message")) {
             if (!(onlyNewMessages && !isNewMessage(message))) {
 
                 if (onlyDM && ((String) message.get("channel")).toLowerCase().startsWith("d")) {
-                    sourceCallback.process(message);
+                    returnValue = true;
                 }
                 if (!onlyDM) {
-                    sourceCallback.process(message);
+                    returnValue = true;
                 }
             }
         }
+        return returnValue;
     }
 
     public Boolean isNewMessage(Map<String, Object> message) {

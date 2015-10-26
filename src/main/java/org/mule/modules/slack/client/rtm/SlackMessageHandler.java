@@ -63,9 +63,7 @@ public class SlackMessageHandler implements MessageHandler.Whole<String> {
             lastPingAck = Integer.parseInt(toParse);
             return;
         }
-        if (message.contains("{\"type\":\"hello\"})")) {
-            return;
-        } else {
+        if (!message.contains("{\"type\":\"hello\"})")) {
             messageHandler.onMessage(message);
         }
     }

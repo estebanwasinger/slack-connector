@@ -4,5 +4,5 @@ import java.util.Map;
 
 public interface EventObserver {
 
-    void notify(Map<String, Object> message) throws Exception;
+    boolean shouldSend(Map<String, Object> message);
 }
