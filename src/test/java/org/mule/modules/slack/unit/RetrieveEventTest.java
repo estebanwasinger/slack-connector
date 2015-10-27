@@ -54,7 +54,7 @@ public class RetrieveEventTest {
 
             @Override
             public Void call() throws Exception {
-                connector.retrieveEvents(callback, true, false, true, true, false, null);
+                connector.retrieveEvents(callback, true, false, true, true, false, null, null, null, null, null, null);
                 return null;
             }
         };

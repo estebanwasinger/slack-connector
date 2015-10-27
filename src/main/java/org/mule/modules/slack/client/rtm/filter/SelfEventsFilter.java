@@ -2,7 +2,7 @@ package org.mule.modules.slack.client.rtm.filter;
 
 import java.util.Map;
 
-public class SelfEventsFilter implements SlackEventFilter {
+public class SelfEventsFilter implements EventFilter {
 
     private String selfUserId;
     public static final String USER_FIELD = "user";

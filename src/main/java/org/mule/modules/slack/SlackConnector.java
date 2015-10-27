@@ -64,6 +64,10 @@ public class SlackConnector {
     private static final Logger logger = Logger.getLogger(SlackConnector.class);
     private static final String NUMBER_OF_MESSAGES = "Number of messages to return, the value should be between 1 and 1000.";
     public static final String USER_TYPING_EVENT = "user_typing";
+    private static final String IM_CREATED = "im_created";
+    private static final String FILE_CREATED = "file_created";
+    private static final String FILE_SHARED = "file_shared";
+    private static final String FILE_PUBLIC = "file_public";
 
     @Inject
     MuleContext muleContext;
@@ -824,7 +828,7 @@ public class SlackConnector {
         MuleContext muleContext = muleEvent.getMuleContext();
         System.out.println(className);
         Class<?> aClass = Class.forName(className, true, muleContext.getExecutionClassLoader());
-        SlackEventFilter o = (SlackEventFilter) aClass.newInstance();
+        EventFilter o = (EventFilter) aClass.newInstance();
         System.out.println(o.shouldAccept(new HashMap<String, Object>()));
         System.out.println(o);
         System.out.println(aClass);
@@ -838,11 +842,17 @@ public class SlackConnector {
     public Message retrieveEvents(
             final SourceCallback sourceCallback,
             @Placement(group = "Events to accept") @Default("#[false]") Boolean messages,
-            @Placement(group = "Events to accept") @Default("#[false]")  Boolean userTyping,
-            @Placement(group = "Message Filters") @FriendlyName(value = "Only Direct Messages") @Default("#[false]")  Boolean directMessages,
-            @Placement(group = "Message Filters") @FriendlyName(value = "Only New Messages") @Default("#[false]")  Boolean onlyNewMessages,
-            @Placement(group = "Events Filters") @Default("#[false]")  Boolean ignoreSelfEvents,
-            @Placement(group = "Custom Filter", tab = "Advanced") @Summary("You can refer an external class to work as a custom filter. (This class must implement 'org.mule.modules.slack.client.rtm.filter.SlackEventFilter')") @Optional String className) throws IOException, InterruptedException, DeploymentException {
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean userTyping,
+            @Placement(group = "Events Filters") @FriendlyName(value = "Only Direct Messages") @Default("#[false]") Boolean directMessages,
+            @Placement(group = "Events Filters") @FriendlyName(value = "Only New Messages") @Default("#[false]") Boolean onlyNewMessages,
+            @Placement(group = "Events Filters") @Default("#[false]") Boolean ignoreSelfEvents,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean imCreated,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean fileCreated,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean fileShared,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean filePublic,
+            @Placement(group = "Custom Filter", tab = "Advanced") @Summary("You can refer an external class to work as a custom filter. (This class must implement 'org.mule.modules.slack.client.rtm.filter.EventFilter')") @Optional String filterClassName,
+            @Placement(group = "Custom Notifier", tab = "Advanced") @Summary("You can refer an external class to work as a custom notifier. (This class must implement 'org.mule.modules.slack.client.rtm.filter.EventNotifier')") @Optional String notifierClassName
+    ) throws IOException, InterruptedException, DeploymentException {
 
         if (getSlackConfig() instanceof SlackOAuth2Config) {
             logger.error("Retrieve Events source doesn't work with OAuth 2 configuration, please use Token Config");
@@ -850,37 +860,73 @@ public class SlackConnector {
             return new Message();
         }
 
-        List<EventObserver> observerList = new ArrayList<>();
-        List<SlackEventFilter> slackEventFilterList = new ArrayList<>();
+        List<EventNotifier> observerList = new ArrayList<>();
+        List<EventFilter> eventFilterList = new ArrayList<>();
 
         if (messages) {
-            observerList.add(new MessagesObserver(sourceCallback, directMessages, onlyNewMessages));
-        }
-        if (userTyping) {
-            observerList.add(new OnlyTypeObserver(sourceCallback, USER_TYPING_EVENT));
+            observerList.add(new MessagesNotifier(directMessages, onlyNewMessages));
         }
 
-        if (StringUtils.isNotEmpty(className)) {
-            slackEventFilterList.add(getFilter(className));
+        if (userTyping) {
+            observerList.add(new OnlyTypeNotifier(USER_TYPING_EVENT));
+        }
+
+        if (imCreated) {
+            observerList.add(new OnlyTypeNotifier(IM_CREATED));
+        }
+
+        if (fileCreated) {
+            observerList.add(new OnlyTypeNotifier(FILE_CREATED));
+        }
+
+        if (fileShared) {
+            observerList.add(new OnlyTypeNotifier(FILE_SHARED));
+        }
+
+        if (filePublic) {
+            observerList.add(new OnlyTypeNotifier(FILE_PUBLIC));
+        }
+
+        if (StringUtils.isNotEmpty(filterClassName)) {
+            eventFilterList.add(getFilterInstance(filterClassName));
+        }
+
+        if (StringUtils.isNotEmpty(notifierClassName)) {
+            observerList.add(getNotifierInstance(notifierClassName));
         }
 
         if (ignoreSelfEvents) {
-            slackEventFilterList.add(new SelfEventsFilter(slack().getSelfId()));
+            eventFilterList.add(new SelfEventsFilter(slack().getSelfId()));
         }
 
-        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, observerList, slackEventFilterList));
+        slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, observerList, eventFilterList));
 
         System.out.println("Ending!");
         return null;
     }
 
-    private SlackEventFilter getFilter(String className) {
+    private EventFilter getFilterInstance(String className) {
         try {
             logger.info("Detected custom filter class: " + className);
             Class<?> aClass = Class.forName(className, true, getMuleContext().getExecutionClassLoader());
-            return (SlackEventFilter) aClass.newInstance();
+            return (EventFilter) aClass.newInstance();
         } catch (ClassCastException e) {
             String errorMessage = String.format("The configured class [%s] does not implements 'org.mule.modules.slack.client.rtm.filter.SlackEventFilter'", className);
+            logger.error(errorMessage);
+            throw new SlackException(errorMessage);
+        } catch (Exception e) {
+            logger.error("Error loading Custom filter class", e);
+            throw new SlackException("Error loading Custom filter class", e);
+        }
+    }
+
+    private EventNotifier getNotifierInstance(String className) {
+        try {
+            logger.info("Detected custom filter class: " + className);
+            Class<?> aClass = Class.forName(className, true, getMuleContext().getExecutionClassLoader());
+            return (EventNotifier) aClass.newInstance();
+        } catch (ClassCastException e) {
+            String errorMessage = String.format("The configured class [%s] does not implements 'org.mule.modules.slack.client.rtm.filter.EventObserver'", className);
             logger.error(errorMessage);
             throw new SlackException(errorMessage);
         } catch (Exception e) {

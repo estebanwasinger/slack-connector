@@ -1,18 +1,14 @@
 package org.mule.modules.slack.client.rtm.filter;
 
 
-import org.mule.api.callback.SourceCallback;
-
 import java.util.Map;
 
-public class MessagesObserver implements EventObserver {
+public class MessagesNotifier implements EventNotifier {
 
-    private final SourceCallback sourceCallback;
     private final Boolean onlyDM;
     private final Boolean onlyNewMessages;
 
-    public MessagesObserver(SourceCallback sourceCallback, Boolean onlyDM, Boolean onlyNewMessages) {
-        this.sourceCallback = sourceCallback;
+    public MessagesNotifier(Boolean onlyDM, Boolean onlyNewMessages) {
         this.onlyDM = onlyDM;
         this.onlyNewMessages = onlyNewMessages;
     }
