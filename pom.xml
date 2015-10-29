@@ -6,7 +6,7 @@
     <artifactId>slack-connector</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <packaging>mule-module</packaging>
-    <name>Mule Slack Anypoint Connector</name>
+    <name>Mule Slack Super Anypoint Connector</name>
 
 
     <parent>
