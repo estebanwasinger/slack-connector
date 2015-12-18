@@ -58,6 +58,7 @@ import java.util.List;
  *
  * @author Esteban Wasinger
  */
+
 @Connector(name = "slack", friendlyName = "Slack", minMuleVersion = "3.5.0")
 public class SlackConnector {
 

@@ -9,9 +9,12 @@ package org.mule.modules.slack.metadata;
 import org.mule.api.annotations.MetaDataKeyRetriever;
 import org.mule.api.annotations.MetaDataRetriever;
 import org.mule.api.annotations.components.MetaDataCategory;
+import org.mule.common.metadata.DefaultMetaData;
 import org.mule.common.metadata.DefaultMetaDataKey;
 import org.mule.common.metadata.MetaData;
 import org.mule.common.metadata.MetaDataKey;
+import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
+import org.mule.common.metadata.builder.PojoMetaDataBuilder;
 import org.mule.modules.slack.SlackConnector;
 import org.mule.modules.slack.client.model.User;
 
@@ -48,7 +51,10 @@ public class UserCategory {
     }
     @MetaDataRetriever
     public MetaData describeEntity(MetaDataKey entityKey) throws Exception {
-        return null;
+        DefaultMetaDataBuilder builder = new DefaultMetaDataBuilder();
+        PojoMetaDataBuilder<?> pojo = builder.createPojo(User.class);
+
+        return new DefaultMetaData(pojo.build());
     }
 
 
