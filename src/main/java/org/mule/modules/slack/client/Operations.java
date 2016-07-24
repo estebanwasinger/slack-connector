@@ -5,9 +5,6 @@
 
 package org.mule.modules.slack.client;
 
-/**
- * Created by estebanwasinger on 12/5/14.
- */
 public class Operations {
 
     private Operations() {
@@ -56,4 +53,11 @@ public class Operations {
     public static final String FILES_UPLOAD = "files.upload";
     public static final String SEARCH_MESSAGES = "search.messages";
     public static final String RTM_START = "rtm.start";
+    public static final String USERGROUPS_LIST = "usergroups.list";
+    public static final String USERGROUPS_ENABLE = "usergroups.enable";
+    public static final String USERGROUPS_DISABLE = "usergroups.disable";
+    public static final String USERGROUPS_CREATE = "usergroups.create";
+    public static final String USERGROUPS_UPDATE = "usergroups.update";
+    public static final String USERGROUPS_USERS_LIST = "usergroups.user.list";
+    public static final String USERGROUPS_USERS_UPDATE = "usergroups.user.update";
 }

@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
+import org.mule.api.NestedProcessor;
 import org.mule.api.annotations.*;
 import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.display.Path;
@@ -19,7 +20,9 @@ import org.mule.api.annotations.oauth.OAuthProtected;
 import org.mule.api.annotations.param.Default;
 import org.mule.api.annotations.param.MetaDataKeyParam;
 import org.mule.api.annotations.param.Optional;
+import org.mule.api.annotations.param.RefOnly;
 import org.mule.api.callback.SourceCallback;
+import org.mule.api.store.ObjectStore;
 import org.mule.modules.slack.client.SlackClient;
 import org.mule.modules.slack.client.exceptions.SlackException;
 import org.mule.modules.slack.client.exceptions.UserNotFoundException;
@@ -32,8 +35,10 @@ import org.mule.modules.slack.client.model.file.FileUploadResponse;
 import org.mule.modules.slack.client.model.group.Group;
 import org.mule.modules.slack.client.model.im.DirectMessageChannel;
 import org.mule.modules.slack.client.model.im.DirectMessageChannelCreationResponse;
+import org.mule.modules.slack.client.model.usergroups.Usergroup;
 import org.mule.modules.slack.client.rtm.ConfigurableHandler;
 import org.mule.modules.slack.client.rtm.filter.*;
+import org.mule.modules.slack.client.utils.Tuple;
 import org.mule.modules.slack.config.BasicSlackConfig;
 import org.mule.modules.slack.config.SlackOAuth2Config;
 import org.mule.modules.slack.metadata.AllChannelCategory;
@@ -44,14 +49,18 @@ import org.mule.modules.slack.retrievers.ChannelMessageRetriever;
 import org.mule.modules.slack.retrievers.DirectMessageRetriever;
 import org.mule.modules.slack.retrievers.GroupMessageRetriever;
 import org.mule.modules.slack.retrievers.MessageRetriever;
+import org.mule.modules.slack.storage.ObjectStoreStorage;
+import org.mule.modules.slack.storage.SlackStorage;
 
 import javax.inject.Inject;
 import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Slack Anypoint Connector
@@ -59,30 +68,19 @@ import java.util.List;
  * @author Esteban Wasinger
  */
 
-@Connector(name = "slack", friendlyName = "Slack", minMuleVersion = "3.5.0")
-public class SlackConnector {
+@Connector(name = "slack", friendlyName = "Slack") public class SlackConnector {
 
     private static final Logger logger = Logger.getLogger(SlackConnector.class);
     private static final String NUMBER_OF_MESSAGES = "Number of messages to return, the value should be between 1 and 1000.";
-    public static final String USER_TYPING_EVENT = "user_typing";
+    private static final String USER_TYPING_EVENT = "user_typing";
     private static final String IM_CREATED = "im_created";
     private static final String FILE_CREATED = "file_created";
     private static final String FILE_SHARED = "file_shared";
     private static final String FILE_PUBLIC = "file_public";
 
-    @Inject
-    MuleContext muleContext;
+    @Inject MuleContext muleContext;
 
-    public MuleContext getMuleContext() {
-        return muleContext;
-    }
-
-    public void setMuleContext(MuleContext muleContext) {
-        this.muleContext = muleContext;
-    }
-
-    @Config
-    BasicSlackConfig slackConfig;
+    @Config BasicSlackConfig slackConfig;
 
     //***********
     // Users methods
@@ -98,14 +96,12 @@ public class SlackConnector {
      * @return The desired User
      * @throws org.mule.modules.slack.client.exceptions.UserNotFoundException When the user doesn't exist
      */
-
     @OAuthProtected
     @Processor(friendlyName = "User - Info")
     @Summary("This processor returns information about a team member.")
     @MetaDataScope(UserCategory.class)
-    public User getUserInfo(
-            @MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) {
-        return slack().getUserInfo(id);
+    public User getUserInfo(@MetaDataKeyParam @Summary("User ID to get info on") @FriendlyName("User ID") String id) {
+        return slack().users.getUserInfo(id);
     }
 
     /**
@@ -122,13 +118,12 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "User - Info by name")
     @Summary("This processor returns information about a team member.")
-    public User getUserInfoByName(
-            @Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
-        return slack().getUserInfoByName(username);
+    public User getUserInfoByName(@Summary("User name to get info on") @FriendlyName("Username") String username) throws UserNotFoundException {
+        return slack().users.getUserInfoByName(username);
     }
 
     /**
-     * This processor returns a list of all users in the team. This includes deleted/deactivated users.
+     * This processor returns a list of all user in the team. This includes deleted/deactivated user.
      * <p/>
      * {@sample.xml ../../../doc/slack-connector.xml.sample
      * slack:get-user-list}
@@ -137,10 +132,10 @@ public class SlackConnector {
      */
 
     @OAuthProtected
-    @Summary("This processor returns a list of all users in the team. This includes deleted/deactivated users.")
+    @Summary("This processor returns a list of all user in the team. This includes deleted/deactivated user.")
     @Processor(friendlyName = "User - List")
     public List<User> getUserList() {
-        return slack().getUserList();
+        return slack().users.getUserList();
     }
 
     //***********
@@ -160,7 +155,7 @@ public class SlackConnector {
     @Summary("This processor returns a list of all channels in the team. This includes channels the caller is in, channels they are not currently in, and archived channels. The number of (non-deactivated) members in each channel is also returned.")
     @Processor(friendlyName = "Channel - List")
     public List<Channel> getChannelList() {
-        return slack().getChannelList();
+        return slack().channels.getChannelList();
     }
 
     /**
@@ -180,14 +175,12 @@ public class SlackConnector {
     @Summary("This processor returns a portion of messages/events from the specified channel.")
     @Processor(friendlyName = "Channel - History")
     @MetaDataScope(ChannelCategory.class)
-    public List<Message> getChannelHistory(
-            @FriendlyName("Channel ID") @Summary("Channel to fetch history for") @MetaDataKeyParam String channelId,
+    public List<Message> getChannelHistory(@FriendlyName("Channel ID") @Summary("Channel to fetch history for") @MetaDataKeyParam String channelId,
             @Optional @Summary("End of time range of messages to include in results. Leave it blank to select current time.") String latestTimestamp,
             @Optional @Summary("Start of time range of messages to include in results. Leave it blank for timestamp 0") String oldestTimestamp,
             @Default("100") @Summary(NUMBER_OF_MESSAGES) String mountOfMessages) {
-        return slack().getChannelHistory(channelId, latestTimestamp, oldestTimestamp, mountOfMessages);
+        return slack().channels.getChannelHistory(channelId, latestTimestamp, oldestTimestamp, mountOfMessages);
     }
-
 
     /**
      * This processor returns information about a team channel specifying the ID.
@@ -203,11 +196,9 @@ public class SlackConnector {
     @Summary("This processor returns information about a team channel specifying the ID.")
     @Processor(friendlyName = "Channel - Info")
     @MetaDataScope(ChannelCategory.class)
-    public Channel getChannelInfo(
-            @Summary("Channel to get info on") @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
-        return slack().getChannelById(channelId);
+    public Channel getChannelInfo(@Summary("Channel to get info on") @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
+        return slack().channels.getChannelById(channelId);
     }
-
 
     /**
      * This processor returns information about a team channel specifyng the name.
@@ -221,9 +212,8 @@ public class SlackConnector {
 
     @OAuthProtected
     @Processor(friendlyName = "Channel - Info by Name")
-    public Channel getChannelByName(
-            String channelName) {
-        return slack().getChannelByName(channelName);
+    public Channel getChannelByName(String channelName) {
+        return slack().channels.getChannelByName(channelName);
     }
 
     /**
@@ -239,9 +229,8 @@ public class SlackConnector {
     @OAuthProtected
     @Summary("This processor is used to create a channel.")
     @Processor(friendlyName = "Channel - Create")
-    public Channel createChannel(
-            @Summary("Name of channel to create") String channelName) {
-        return slack().createChannel(channelName);
+    public Channel createChannel(@Summary("Name of channel to create") String channelName) {
+        return slack().channels.createChannel(channelName);
     }
 
     /**
@@ -259,10 +248,9 @@ public class SlackConnector {
     @Summary("This method renames a team channel. The only people who can rename a channel are team admins, or the person that originally created the channel. Others will recieve a \"not_authorized\" error.")
     @Processor(friendlyName = "Channel - Rename")
     @MetaDataScope(ChannelCategory.class)
-    public Channel renameChannel(
-            @Summary("Channel to rename") @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
+    public Channel renameChannel(@Summary("Channel to rename") @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
             @Summary("New name for channel") String channelName) {
-        return slack().renameChannel(channelId, channelName);
+        return slack().channels.renameChannel(channelId, channelName);
     }
 
     /**
@@ -278,9 +266,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Join")
     @MetaDataScope(ChannelCategory.class)
-    public Channel joinChannel(
-            @MetaDataKeyParam String channelName) {
-        return slack().joinChannel(channelName);
+    public Channel joinChannel(@MetaDataKeyParam String channelName) {
+        return slack().channels.joinChannel(channelName);
     }
 
     /**
@@ -296,11 +283,9 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Leave")
     @MetaDataScope(ChannelCategory.class)
-    public Boolean leaveChannel(
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
-        return slack().leaveChannel(channelId);
+    public Boolean leaveChannel(@FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
+        return slack().channels.leaveChannel(channelId);
     }
-
 
     /**
      * This processor archives a channel.
@@ -315,9 +300,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Archive")
     @MetaDataScope(ChannelCategory.class)
-    public Boolean archiveChannel(
-            @MetaDataKeyParam String channelID) {
-        return slack().archiveChannel(channelID);
+    public Boolean archiveChannel(@MetaDataKeyParam String channelID) {
+        return slack().channels.archiveChannel(channelID);
     }
 
     /**
@@ -332,9 +316,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Unarchive")
     @MetaDataScope(ChannelCategory.class)
-    public Boolean unarchiveChannel(
-            @MetaDataKeyParam String channelID) {
-        return slack().unarchiveChannel(channelID);
+    public Boolean unarchiveChannel(@MetaDataKeyParam String channelID) {
+        return slack().channels.unarchiveChannel(channelID);
     }
 
     /**
@@ -350,9 +333,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Set topic")
     @MetaDataScope(ChannelCategory.class)
-    public Boolean setChannelTopic(
-            @MetaDataKeyParam String channelID, String topic) {
-        return slack().setChannelTopic(channelID, topic);
+    public Boolean setChannelTopic(@MetaDataKeyParam String channelID, String topic) {
+        return slack().channels.setChannelTopic(channelID, topic);
     }
 
     /**
@@ -368,12 +350,9 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Channel - Set purpose")
     @MetaDataScope(ChannelCategory.class)
-    public Boolean setChannelPurpose(
-            @MetaDataKeyParam String channelID,
-            String purpose) {
-        return slack().setChannelPurpose(channelID, purpose);
+    public Boolean setChannelPurpose(@MetaDataKeyParam String channelID, String purpose) {
+        return slack().channels.setChannelPurpose(channelID, purpose);
     }
-
 
     //***********
     // Chat methods
@@ -395,13 +374,9 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Chat - Post message")
     @MetaDataScope(AllChannelCategory.class)
-    public MessageResponse postMessage(
-            String message,
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
-            @Optional @FriendlyName("Name to show") String username,
-            @Optional @FriendlyName("Icon URL") String iconURL,
-            @Optional Boolean asUser) {
-        return slack().sendMessage(message, channelId, username, iconURL, BooleanUtils.toBoolean(asUser));
+    public MessageResponse postMessage(String message, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId, @Optional @FriendlyName("Name to show") String username,
+            @Optional @FriendlyName("Icon URL") String iconURL, @Optional Boolean asUser) {
+        return slack().chat.sendMessage(message, channelId, username, iconURL, BooleanUtils.toBoolean(asUser));
     }
 
     /**
@@ -422,14 +397,10 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Chat - Post message with attachment")
     @MetaDataScope(AllChannelCategory.class)
-    public MessageResponse postMessageWithAttachment(
-            @Optional String message,
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
-            @Optional @FriendlyName("Name to show") String username,
-            @Optional @FriendlyName("Icon URL") String iconURL,
-            @FriendlyName("Attachment List") @Default("#[payload]") List<ChatAttachment> chatAttachmentList,
-            @Optional Boolean asUser) {
-        return slack().sendMessageWithAttachment(message, channelId, username, iconURL, chatAttachmentList, BooleanUtils.toBoolean(asUser));
+    public MessageResponse postMessageWithAttachment(@Optional String message, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
+            @Optional @FriendlyName("Name to show") String username, @Optional @FriendlyName("Icon URL") String iconURL,
+            @FriendlyName("Attachment List") @Default("#[payload]") @RefOnly List<ChatAttachment> chatAttachmentList, @Optional Boolean asUser) {
+        return slack().chat.sendMessageWithAttachment(message, channelId, username, iconURL, chatAttachmentList, BooleanUtils.toBoolean(asUser));
     }
 
     /**
@@ -445,10 +416,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Chat - Delete message")
     @MetaDataScope(AllChannelCategory.class)
-    public Boolean deleteMessage(
-            @FriendlyName("Message TimeStamp") String timeStamp,
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
-        return slack().deleteMessage(timeStamp, channelId);
+    public Boolean deleteMessage(@FriendlyName("Message TimeStamp") String timeStamp, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId) {
+        return slack().chat.deleteMessage(timeStamp, channelId);
     }
 
     /**
@@ -465,11 +434,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Chat - Update message")
     @MetaDataScope(AllChannelCategory.class)
-    public Boolean updateMessage(
-            @FriendlyName("Message TimeStamp") String timeStamp,
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelId,
-            String message) {
-        return slack().updateMessage(timeStamp, channelId, message);
+    public Boolean updateMessage(@FriendlyName("Message TimeStamp") String timeStamp, @FriendlyName("Channel ID") @MetaDataKeyParam String channelId, String message) {
+        return slack().chat.updateMessage(timeStamp, channelId, message);
     }
 
     //***********
@@ -488,9 +454,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "IM - Open DM channel")
     @MetaDataScope(UserCategory.class)
-    public DirectMessageChannelCreationResponse openDirectMessageChannel(
-            @FriendlyName("User ID") @MetaDataKeyParam String userId) {
-        return slack().openDirectMessageChannel(userId);
+    public DirectMessageChannelCreationResponse openDirectMessageChannel(@FriendlyName("User ID") @MetaDataKeyParam String userId) {
+        return slack().im.openDirectMessageChannel(userId);
     }
 
     /**
@@ -505,9 +470,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "IM - Close DM channel")
     // @MetaDataScope(UserCategory.class) TODO
-    public Boolean closeDirectMessageChannel(
-            @FriendlyName("DM Channel ID") String channelId) {
-        return slack().closeDirectMessageChannel(channelId);
+    public Boolean closeDirectMessageChannel(@FriendlyName("DM Channel ID") String channelId) {
+        return slack().im.closeDirectMessageChannel(channelId);
     }
 
     /**
@@ -521,7 +485,7 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "IM - List DM channels")
     public List<DirectMessageChannel> listDirectMessageChannels() {
-        return slack().getDirectMessageChannelsList();
+        return slack().im.getDirectMessageChannelsList();
     }
 
     /**
@@ -540,12 +504,11 @@ public class SlackConnector {
     @Summary("This processor returns a portion of messages/events from the specified DM.")
     @Processor(friendlyName = "IM - History")
     @MetaDataScope(UserCategory.class)
-    public List<Message> getDMHistory(
-            @FriendlyName("Channel ID") @Summary("Channel to fetch history for") @MetaDataKeyParam String channelID,
+    public List<Message> getDMHistory(@FriendlyName("Channel ID") @Summary("Channel to fetch history for") @MetaDataKeyParam String channelID,
             @Optional @Summary("End of time range of messages to include in results. Leave it blank to select current time.") String latestTimestamp,
             @Optional @Summary("Start of time range of messages to include in results. Leave it blank for timestamp 0") String oldestTimestamp,
             @Default("100") @Summary("Number of messages to return, between 1 and 1000.") String mountOfMessages) {
-        return slack().getDirectChannelHistory(channelID, latestTimestamp, oldestTimestamp, mountOfMessages);
+        return slack().im.getDirectChannelHistory(channelID, latestTimestamp, oldestTimestamp, mountOfMessages);
     }
 
     //***********
@@ -563,7 +526,7 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - List")
     public List<Group> getGroupList() {
-        return slack().getGroupList();
+        return slack().groups.getGroupList();
     }
 
     /**
@@ -582,12 +545,11 @@ public class SlackConnector {
     @Summary("This processor returns a portion of messages/events from the specified group.")
     @Processor(friendlyName = "Group - History")
     @MetaDataScope(GroupCategory.class)
-    public List<Message> getGroupHistory(
-            @FriendlyName("Channel ID") @Summary("Group to fetch history for") @MetaDataKeyParam String groupID,
+    public List<Message> getGroupHistory(@FriendlyName("Channel ID") @Summary("Group to fetch history for") @MetaDataKeyParam String groupID,
             @Optional @Summary("End of time range of messages to include in results. Leave it blank to select current time.") String latestTimestamp,
             @Optional @Summary("Start of time range of messages to include in results. Leave it blank for timestamp 0") String oldestTimestamp,
             @Default("100") @Summary("Number of messages to return, between 1 and 1000.") String mountOfMessages) {
-        return slack().getGroupHistory(groupID, latestTimestamp, oldestTimestamp, mountOfMessages);
+        return slack().groups.getGroupHistory(groupID, latestTimestamp, oldestTimestamp, mountOfMessages);
     }
 
     /**
@@ -603,9 +565,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Set topic")
     @MetaDataScope(GroupCategory.class)
-    public Boolean setGroupTopic(
-            @MetaDataKeyParam String channelID, String topic) {
-        return slack().setGroupTopic(channelID, topic);
+    public Boolean setGroupTopic(@MetaDataKeyParam String channelID, String topic) {
+        return slack().groups.setGroupTopic(channelID, topic);
     }
 
     /**
@@ -621,9 +582,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Set purpose")
     @MetaDataScope(GroupCategory.class)
-    public Boolean setGroupPurpose(
-            @MetaDataKeyParam String channelID, String purpose) {
-        return slack().setGroupPurpose(channelID, purpose);
+    public Boolean setGroupPurpose(@MetaDataKeyParam String channelID, String purpose) {
+        return slack().groups.setGroupPurpose(channelID, purpose);
     }
 
     /**
@@ -637,9 +597,8 @@ public class SlackConnector {
      */
     @OAuthProtected
     @Processor(friendlyName = "Group - Create")
-    public Group createGroup(
-            String groupName) {
-        return slack().createGroup(groupName);
+    public Group createGroup(String groupName) {
+        return slack().groups.createGroup(groupName);
     }
 
     /**
@@ -654,9 +613,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Close")
     @MetaDataScope(GroupCategory.class)
-    public Boolean closeGroup(
-            @MetaDataKeyParam String channelID) {
-        return slack().closeGroup(channelID);
+    public Boolean closeGroup(@MetaDataKeyParam String channelID) {
+        return slack().groups.closeGroup(channelID);
     }
 
     /**
@@ -671,9 +629,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Open")
     @MetaDataScope(GroupCategory.class)
-    public Boolean openGroup(
-            @MetaDataKeyParam String channelID) {
-        return slack().openGroup(channelID);
+    public Boolean openGroup(@MetaDataKeyParam String channelID) {
+        return slack().groups.openGroup(channelID);
     }
 
     /**
@@ -688,9 +645,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Archive")
     @MetaDataScope(GroupCategory.class)
-    public Boolean archiveGroup(
-            @MetaDataKeyParam String channelID) {
-        return slack().archiveGroup(channelID);
+    public Boolean archiveGroup(@MetaDataKeyParam String channelID) {
+        return slack().groups.archiveGroup(channelID);
     }
 
     /**
@@ -705,9 +661,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Unarchive")
     @MetaDataScope(GroupCategory.class)
-    public Boolean unarchiveGroup(
-            @MetaDataKeyParam String channelID) {
-        return slack().unarchiveGroup(channelID);
+    public Boolean unarchiveGroup(@MetaDataKeyParam String channelID) {
+        return slack().groups.unarchiveGroup(channelID);
     }
 
     /**
@@ -723,10 +678,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Rename")
     @MetaDataScope(GroupCategory.class)
-    public Group renameGroup(
-            @Summary("Group to rename") @FriendlyName("Group ID") @MetaDataKeyParam String groupId,
-            @Summary("New name for group") String groupName) {
-        return slack().renameGroup(groupId, groupName);
+    public Group renameGroup(@Summary("Group to rename") @FriendlyName("Group ID") @MetaDataKeyParam String groupId, @Summary("New name for group") String groupName) {
+        return slack().groups.renameGroup(groupId, groupName);
     }
 
     /**
@@ -742,9 +695,8 @@ public class SlackConnector {
     @Summary("This processor returns information about a private group.")
     @Processor(friendlyName = "Group - Info")
     @MetaDataScope(GroupCategory.class)
-    public Group getGroupInfo(
-            @Summary("Group to get info on") @FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
-        return slack().getGroupInfo(channelId);
+    public Group getGroupInfo(@Summary("Group to get info on") @FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
+        return slack().groups.getGroupInfo(channelId);
     }
 
     /**
@@ -759,9 +711,8 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "Group - Leave")
     @MetaDataScope(GroupCategory.class)
-    public Boolean leaveGroup(
-            @FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
-        return slack().leaveGroup(channelId);
+    public Boolean leaveGroup(@FriendlyName("Group ID") @MetaDataKeyParam String channelId) {
+        return slack().groups.leaveGroup(channelId);
     }
 
     //***********
@@ -786,14 +737,9 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "File - Upload")
     @MetaDataScope(AllChannelCategory.class)
-    public FileUploadResponse uploadFile(
-            @FriendlyName("Channel ID") @MetaDataKeyParam String channelID,
-            @Optional String fileName,
-            @Optional String fileType,
-            @Optional String title,
-            @Optional String initialComment,
-            @Summary("File path of the file to upload") @Path String filePath) throws IOException {
-        return slack().sendFile(channelID, fileName, fileType, title, initialComment, filePath);
+    public FileUploadResponse uploadFile(@FriendlyName("Channel ID") @MetaDataKeyParam String channelID, @Optional String fileName, @Optional String fileType,
+            @Optional String title, @Optional String initialComment, @Summary("File path of the file to upload") @Path String filePath) throws IOException {
+        return slack().files.sendFile(channelID, fileName, fileType, title, initialComment, filePath);
     }
 
     /**
@@ -814,51 +760,174 @@ public class SlackConnector {
     @OAuthProtected
     @Processor(friendlyName = "File - Upload as Input Stream")
     @MetaDataScope(AllChannelCategory.class)
-    public FileUploadResponse uploadFileAsInputStreams(
-            @Summary("Channel ID to send the message") @FriendlyName("Channel ID") @MetaDataKeyParam String channelID,
-            @Summary("File name to show in the Slack message") @Optional String fileName,
-            @Optional String fileType,
-            @Summary("Message title") @Optional String title,
-            @Optional String initialComment,
-            @Summary("Input Stream Reference of where to look the file to upload") @Default("#[payload]") InputStream inputStream) throws IOException {
-        return slack().sendFile(channelID, fileName, fileType, title, initialComment, inputStream);
+    public FileUploadResponse uploadFileAsInputStreams(@Summary("Channel ID to send the message") @FriendlyName("Channel ID") @MetaDataKeyParam String channelID,
+            @Summary("File name to show in the Slack message") @Optional String fileName, @Optional String fileType, @Summary("Message title") @Optional String title,
+            @Optional String initialComment, @Summary("Input Stream Reference of where to look the file to upload") @Default("#[payload]") InputStream inputStream)
+            throws IOException {
+        return slack().files.sendFile(channelID, fileName, fileType, title, initialComment, inputStream);
     }
 
-    @Processor
-    public void classForName(String className, MuleEvent muleEvent) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        MuleContext muleContext = muleEvent.getMuleContext();
-        System.out.println(className);
-        Class<?> aClass = Class.forName(className, true, muleContext.getExecutionClassLoader());
-        EventFilter o = (EventFilter) aClass.newInstance();
-        System.out.println(o.shouldAccept(new HashMap<String, Object>()));
-        System.out.println(o);
-        System.out.println(aClass);
+    //******************
+    // UserGroups methods
+    //******************
+
+    /**
+     * This method returns a list of all User Groups in the team. This can optionally include disabled User Groups.
+     *
+     * @param includeDisabled Include disabled user groups
+     * @param includeCount    Include the number of user in each user group
+     * @param includeUsers    Include the list of user for each user group
+     * @return The list of User Groups in the team
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - List")
+    public List<Usergroup> listUserGroups(@Summary("Include disabled user groups.") @Default("#[false]") Boolean includeDisabled,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount,
+            @Summary("Include the list of user for each user group.") @Default("#[false]") Boolean includeUsers) {
+        return slack().usergroups.listUserGroups(includeDisabled, includeCount, includeUsers);
+    }
+
+    /**
+     * This method enables a User Group which was previously disabled.
+     *
+     * @param userGroupId  The encoded ID of the User Group to enable
+     * @param includeCount Include the number of user in each user group.
+     * @return the enabled User Group
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Enable")
+    public Usergroup enableUserGroup(@Summary("The encoded ID of the User Group to enable.") String userGroupId,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount) {
+        return slack().usergroups.enableUserGroup(userGroupId, includeCount);
+    }
+
+    /**
+     * This method disables a User Group
+     *
+     * @param userGroupId  The encoded ID of the User Group to disable
+     * @param includeCount Include the number of user in each user group.
+     * @return the disabled User Group
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Disable")
+    public Usergroup disableUserGroup(@Summary("The encoded ID of the User Group to disable.") String userGroupId,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount) {
+        return slack().usergroups.disableUserGroup(userGroupId, includeCount);
+    }
+
+    /**
+     * Create a User Group
+     *
+     * @param userGroupName A name for the User Group. Must be unique among User Groups.
+     * @param handle        A mention handle. Must be unique among channels, user and User Groups
+     * @param description   A short description of the User Group
+     * @param channels      A list channel IDs for which the User Group uses as a default
+     * @param includeCount  Include the number of user in each user group
+     * @return the created User Group
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Create")
+    public Usergroup createUserGroup(@Summary("A name for the User Group. Must be unique among User Groups.") String userGroupName,
+            @Optional @Summary("A mention handle. Must be unique among channels, user and User Groups.") String handle,
+            @Optional @Summary("A short description of the User Group.") String description,
+            @Optional @Summary("A list channel IDs for which the User Group uses as a default.") List<String> channels,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount) {
+        return slack().usergroups.createUserGroup(userGroupName, handle, description, channels, includeCount);
+    }
+
+    /**
+     * Update an existing User Group
+     *
+     * @param userGroupId   The ID of the User Group
+     * @param userGroupName A name for the User Group. Must be unique among User Groups.
+     * @param handle        A mention handle. Must be unique among channels, user and User Groups
+     * @param description   A short description of the User Group
+     * @param channels      A list channel IDs for which the User Group uses as a default
+     * @param includeCount  Include the number of user in each user group
+     * @return the updated User Group
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Update")
+    public Usergroup updateUserGroup(@Summary("The ID of the User Group") String userGroupId,
+            @Optional @Summary("A name for the User Group. Must be unique among User Groups.") String userGroupName,
+            @Optional @Summary("A mention handle. Must be unique among channels, user and User Groups.") String handle,
+            @Optional @Summary("A short description of the User Group.") String description,
+            @Optional @Summary("A list channel IDs for which the User Group uses as a default.") List<String> channels,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount) {
+        return slack().usergroups.updateUserGroup(userGroupId, userGroupName, handle, description, channels, includeCount);
+    }
+
+    /**
+     * Update an existing User Group
+     *
+     * @param userGroupId     The ID of the User Group."
+     * @param includeDisabled Include disabled users
+     * @return a list with all the Users id of the UserGroup
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Users - List")
+    public List<String> listUsersFromUserGroup(@Summary("The ID of the User Group.") String userGroupId,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeDisabled) {
+        return slack().usergroups.listUsersFromUserGroup(userGroupId, includeDisabled);
+    }
+
+    /**
+     * This operation updates the list of users that belong to a User Group.
+     * This operation replaces all users in a User Group with the list of users provided in the users parameter.
+     *
+     * @param userGroupId  The ID of the User Group
+     * @param users        A string list of user IDs that represent the entire list of users for the User Group.
+     * @param includeCount Include disabled users
+     * @return the updated UserGroup
+     */
+    @OAuthProtected
+    @Processor(friendlyName = "UserGroups - Users - Update")
+    public Usergroup updateUsersFromUserGroup(@Summary("The ID of the User Group.") String userGroupId,
+            @Summary("A string list of user IDs that represent the entire list of users for the User Group.") List<String> users,
+            @Summary("Include the number of user in each user group.") @Default("#[false]") Boolean includeCount) {
+        return slack().usergroups.updateUsersFromUserGroup(userGroupId, users, includeCount);
     }
 
     //************
     // Source methods
     //************
 
+    /**
+     * gdgdf
+     *
+     * @param sourceCallback    gdf
+     * @param messages          gdf
+     * @param userTyping        gdf
+     * @param directMessages    gfd
+     * @param onlyNewMessages   gdf
+     * @param ignoreSelfEvents  gfd
+     * @param imCreated         gfd
+     * @param fileCreated       gdf
+     * @param fileShared        gfd
+     * @param filePublic        gfd
+     * @param allEvents         dfg
+     * @param filterClassName   dfg
+     * @param notifierClassName dfg
+     * @throws IOException          dfg
+     * @throws InterruptedException dfg
+     * @throws DeploymentException  dfg
+     */
     @Source(friendlyName = "Retrieve events")
-    public Message retrieveEvents(
-            final SourceCallback sourceCallback,
-            @Placement(group = "Events to accept") @Default("#[false]") Boolean messages,
+    public void retrieveEvents(final SourceCallback sourceCallback, @Placement(group = "Events to accept") @Default("#[false]") Boolean messages,
             @Placement(group = "Events to accept") @Default("#[false]") Boolean userTyping,
             @Placement(group = "Events Filters") @FriendlyName(value = "Only Direct Messages") @Default("#[false]") Boolean directMessages,
             @Placement(group = "Events Filters") @FriendlyName(value = "Only New Messages") @Default("#[false]") Boolean onlyNewMessages,
-            @Placement(group = "Events Filters") @Default("#[false]") Boolean ignoreSelfEvents,
-            @Placement(group = "Events to accept") @Default("#[false]") Boolean imCreated,
-            @Placement(group = "Events to accept") @Default("#[false]") Boolean fileCreated,
-            @Placement(group = "Events to accept") @Default("#[false]") Boolean fileShared,
-            @Placement(group = "Events to accept") @Default("#[false]") Boolean filePublic,
+            @Placement(group = "Events Filters") @Default("#[false]") Boolean ignoreSelfEvents, @Placement(group = "Events to accept") @Default("#[false]") Boolean imCreated,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean fileCreated, @Placement(group = "Events to accept") @Default("#[false]") Boolean fileShared,
+            @Placement(group = "Events to accept") @Default("#[false]") Boolean filePublic, @Placement(group = "Events to accept") @Default("#[false]") Boolean allEvents,
             @Placement(group = "Custom Filter", tab = "Advanced") @Summary("You can refer an external class to work as a custom filter. (This class must implement 'org.mule.modules.slack.client.rtm.filter.EventFilter')") @Optional String filterClassName,
-            @Placement(group = "Custom Notifier", tab = "Advanced") @Summary("You can refer an external class to work as a custom notifier. (This class must implement 'org.mule.modules.slack.client.rtm.filter.EventNotifier')") @Optional String notifierClassName
-    ) throws IOException, InterruptedException, DeploymentException {
+            @Placement(group = "Custom Notifier", tab = "Advanced") @Summary("You can refer an external class to work as a custom notifier. (This class must implement 'org.mule.modules.slack.client.rtm.filter.EventNotifier')") @Optional String notifierClassName)
+            throws IOException, InterruptedException, DeploymentException {
 
         if (getSlackConfig() instanceof SlackOAuth2Config) {
             logger.error("Retrieve Events source doesn't work with OAuth 2 configuration, please use Token Config");
             logger.error("Shutting down Retrieving of Messages!");
-            return new Message();
+            return;
         }
 
         List<EventNotifier> observerList = new ArrayList<>();
@@ -888,6 +957,10 @@ public class SlackConnector {
             observerList.add(new OnlyTypeNotifier(FILE_PUBLIC));
         }
 
+        if (allEvents) {
+            observerList.add(new AllEventNotifier());
+        }
+
         if (StringUtils.isNotEmpty(filterClassName)) {
             eventFilterList.add(getFilterInstance(filterClassName));
         }
@@ -897,13 +970,10 @@ public class SlackConnector {
         }
 
         if (ignoreSelfEvents) {
-            eventFilterList.add(new SelfEventsFilter(slack().getSelfId()));
+            eventFilterList.add(new SelfEventsFilter(slack().auth.getSelfId()));
         }
 
         slack().startRealTimeCommunication(new ConfigurableHandler(sourceCallback, observerList, eventFilterList));
-
-        System.out.println("Ending!");
-        return null;
     }
 
     private EventFilter getFilterInstance(String className) {
@@ -936,6 +1006,49 @@ public class SlackConnector {
         }
     }
 
+    //    @Processor
+    public Object slackUserScopeCache(String userId, NestedProcessor nestedProcessor, MuleEvent muleEvent,
+            @Placement(tab = "Advanced") @Optional ObjectStore<Serializable> objectStore) throws Exception {
+
+        Object process;
+        SlackStorage slackStorage;
+
+        final Set<String> pareExistentFlowVars = new HashSet<>();
+
+        for (String flowVarName : muleEvent.getFlowVariableNames()) {
+            pareExistentFlowVars.add(flowVarName);
+        }
+
+        if (objectStore != null) {
+            slackStorage = new ObjectStoreStorage(objectStore);
+        } else {
+            slackStorage = new ObjectStoreStorage(muleContext);
+        }
+
+        for (Tuple<String, Object> flowVar : slackStorage.restoreFlowVars(userId)) {
+            muleEvent.setFlowVariable(flowVar.getLeft(), flowVar.getRight());
+        }
+
+        muleEvent.setFlowVariable("rootMessage", muleEvent.getMessage());
+
+        process = nestedProcessor.process(muleEvent.getMessage().getPayload());
+
+        final ArrayList<Tuple<String, Object>> newFlowVars = new ArrayList<>();
+
+        muleEvent.removeFlowVariable("rootMessage");
+
+        for (String flowVarName : muleEvent.getFlowVariableNames()) {
+            if (!pareExistentFlowVars.contains(flowVarName)) {
+                newFlowVars.add(new Tuple<>(flowVarName, muleEvent.getFlowVariable(flowVarName)));
+                muleEvent.removeFlowVariable(flowVarName);
+            }
+        }
+
+        slackStorage.storageFlowVars(userId, newFlowVars);
+
+        return process;
+    }
+
     private Boolean falseIfNull(Boolean aBoolean) {
         if (aBoolean == null) {
             return false;
@@ -957,9 +1070,9 @@ public class SlackConnector {
      * @throws Exception When the SourceCallback fails processing the messages
      */
     @Source(friendlyName = "Retrieve messages (DEPRECATED)")
-    public Message retrieveMessages(
-            SourceCallback source, Integer messageRetrieverInterval,
-            @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID) throws Exception {
+    public Message retrieveMessages(SourceCallback source, Integer messageRetrieverInterval,
+            @Summary("This source stream messages/events from the specified channel, group or direct message channel") @FriendlyName("Channel ID") String channelID)
+            throws Exception {
         String oldestTimeStamp;
 
         if (getSlackConfig() instanceof SlackOAuth2Config) {
@@ -996,12 +1109,12 @@ public class SlackConnector {
 
     private MessageRetriever getMessageVerifierForChannel(String channelID) throws Exception {
         if (channelID.toLowerCase().startsWith("g")) {
-            logger.info("Started retrieving messages of channel: " + slack().getGroupInfo(channelID).getName() + "!");
+            logger.info("Started retrieving messages of channel: " + slack().groups.getGroupInfo(channelID).getName() + "!");
             return new GroupMessageRetriever();
         }
 
         if (channelID.toLowerCase().startsWith("c")) {
-            logger.info("Started retrieving messages of channel: " + slack().getChannelById(channelID).getName() + "!");
+            logger.info("Started retrieving messages of channel: " + slack().channels.getChannelById(channelID).getName() + "!");
             return new ChannelMessageRetriever();
         }
 
@@ -1023,5 +1136,13 @@ public class SlackConnector {
 
     public void setSlackConfig(BasicSlackConfig slackConfig) {
         this.slackConfig = slackConfig;
+    }
+
+    public MuleContext getMuleContext() {
+        return muleContext;
+    }
+
+    public void setMuleContext(MuleContext muleContext) {
+        this.muleContext = muleContext;
     }
 }

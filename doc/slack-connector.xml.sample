@@ -75,10 +75,7 @@
 <!-- END_INCLUDE(slack:post-message) -->
 
 <!-- BEGIN_INCLUDE(slack:post-message-with-attachment) -->
-            <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" >
-                <slack:chat-attachment color="#489fd7" text="This is a tweet"/>
-                <slack:field title="Tweet Author" value="Username"/>
-            </slack:post-message-with-attachment>
+            <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="G03GX5CHC" iconURL="https://www.cloudbees.com/sites/default/files/blog/butler-devil.png" username="Jenkins Blamer"/>
 <!-- END_INCLUDE(slack:post-message-with-attachment) -->
 
 <!-- BEGIN_INCLUDE(slack:delete-message) -->

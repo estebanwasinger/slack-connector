@@ -1,3 +1,7 @@
+/**
+ * (c) 2003-2015 MuleSoft, Inc. The software in this package is published under the terms of the CPAL v1.0 license,
+ * a copy of which has been included with this distribution in the LICENSE.md file.
+ */
 package org.mule.modules.slack.unit;
 
 import org.apache.commons.lang3.Validate;
@@ -34,7 +38,7 @@ public class RetrieveEventTest {
         connector = new SlackConnector();
         SlackTokenConfig tokenConfig = new SlackTokenConfig();
         tokenConfig.setAccessToken(properties.getProperty("config-type.accessToken"));
-        tokenConfig.connect();
+//        tokenConfig.connect("");
         connector.setSlackConfig(tokenConfig);
 
         callback = mock(SourceCallback.class);
@@ -54,7 +58,7 @@ public class RetrieveEventTest {
 
             @Override
             public Void call() throws Exception {
-                connector.retrieveEvents(callback, true, false, true, true, false, false, false, false, false, null, null);
+                connector.retrieveEvents(callback, true, false, true, true, false, false, false, false, false, false, null, null);
                 return null;
             }
         };

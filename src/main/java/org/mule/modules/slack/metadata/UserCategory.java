@@ -22,28 +22,16 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by esteban on 19/02/15.
- */
-
 @MetaDataCategory
 public class UserCategory {
 
-    public SlackConnector getMyconnector() {
-        return myconnector;
-    }
-
-    public void setMyconnector(SlackConnector myconnector) {
-        this.myconnector = myconnector;
-    }
-
     @Inject
-    private SlackConnector myconnector;
+    private SlackConnector connector;
 
     @MetaDataKeyRetriever
     public List<MetaDataKey> getEntities() throws Exception {
         List<MetaDataKey> entities = new ArrayList<MetaDataKey>();
-        List<User> userList = myconnector.slack().getUserList();
+        List<User> userList = connector.slack().users.getUserList();
         for(User user: userList){
             entities.add(new DefaultMetaDataKey(user.getId(),user.getName()+" - "+user.getId()));
         }
@@ -57,5 +45,12 @@ public class UserCategory {
         return new DefaultMetaData(pojo.build());
     }
 
+    public SlackConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(SlackConnector connector) {
+        this.connector = connector;
+    }
 
 }

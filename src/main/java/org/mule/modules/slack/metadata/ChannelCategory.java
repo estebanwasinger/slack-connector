@@ -5,13 +5,13 @@
 
 package org.mule.modules.slack.metadata;
 
-
 import org.mule.api.annotations.MetaDataKeyRetriever;
 import org.mule.api.annotations.MetaDataRetriever;
 import org.mule.api.annotations.components.MetaDataCategory;
 import org.mule.common.metadata.DefaultMetaDataKey;
 import org.mule.common.metadata.MetaData;
 import org.mule.common.metadata.MetaDataKey;
+import org.mule.common.metadata.builder.DefaultMetaDataBuilder;
 import org.mule.modules.slack.SlackConnector;
 import org.mule.modules.slack.client.model.channel.Channel;
 
@@ -26,21 +26,13 @@ import java.util.List;
 @MetaDataCategory
 public class ChannelCategory {
 
-    public SlackConnector getMyconnector() {
-        return myconnector;
-    }
-
-    public void setMyconnector(SlackConnector myconnector) {
-        this.myconnector = myconnector;
-    }
-
     @Inject
-    private SlackConnector myconnector;
+    private SlackConnector connector;
 
     @MetaDataKeyRetriever
     public List<MetaDataKey> getEntities() throws Exception {
         List<MetaDataKey> entities = new ArrayList<MetaDataKey>();
-        List<Channel> channelList = myconnector.slack().getChannelList();
+        List<Channel> channelList = connector.slack().channels.getChannelList();
         for(Channel channel: channelList){
             entities.add(new DefaultMetaDataKey(channel.getId(),channel.getName() + " - " + channel.getId()));
         }
@@ -52,5 +44,12 @@ public class ChannelCategory {
         return null;
     }
 
+    public SlackConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(SlackConnector connector) {
+        this.connector = connector;
+    }
 
 }

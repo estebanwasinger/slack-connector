@@ -8,6 +8,8 @@ package org.mule.modules.slack.config;
 
 import org.mule.modules.slack.client.SlackClient;
 
+import java.util.Map;
+
 /**
  * Created by estebanwasinger on 1/30/15.
  */
@@ -18,5 +20,7 @@ public interface BasicSlackConfig {
     public String getToken();
 
     public Boolean isAuthorized();
+
+    public Map<String,Map<String, Object>> getUserMap();
 
 }

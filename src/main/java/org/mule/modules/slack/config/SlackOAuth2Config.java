@@ -10,6 +10,8 @@ import org.mule.api.annotations.display.FriendlyName;
 import org.mule.api.annotations.oauth.*;
 import org.mule.modules.slack.client.SlackClient;
 
+import java.util.Map;
+
 @OAuth2( configElementName = "oauth2-type", friendlyName="OAuth2 Configuration",
         accessTokenUrl = "https://slack.com/api/oauth.access",
         authorizationUrl = "https://slack.com/oauth/authorize",
@@ -106,5 +108,10 @@ public class SlackOAuth2Config implements BasicSlackConfig {
 
     public Boolean isAuthorized() {
         return accessToken != null;
+    }
+
+    @Override
+    public Map<String, Map<String, Object>> getUserMap() {
+        return null;
     }
 }

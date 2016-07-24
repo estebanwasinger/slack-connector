@@ -18,36 +18,33 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by esteban on 19/02/15.
- */
-
 @MetaDataCategory
 public class GroupCategory {
 
-    public SlackConnector getMyconnector() {
-        return myconnector;
-    }
-
-    public void setMyconnector(SlackConnector myconnector) {
-        this.myconnector = myconnector;
-    }
-
     @Inject
-    private SlackConnector myconnector;
+    private SlackConnector connector;
 
     @MetaDataKeyRetriever
     public List<MetaDataKey> getEntities() throws Exception {
         List<MetaDataKey> entities = new ArrayList<MetaDataKey>();
-        List<Group> groupList = myconnector.slack().getGroupList();
+        List<Group> groupList = connector.slack().groups.getGroupList();
         for(Group group: groupList){
             entities.add(new DefaultMetaDataKey(group.getId(),group.getName() + " - " + group.getId()));
         }
 
         return entities;
     }
+
     @MetaDataRetriever
     public MetaData describeEntity(MetaDataKey entityKey) throws Exception {
         return null;
+    }
+
+    public SlackConnector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(SlackConnector connector) {
+        this.connector = connector;
     }
 }

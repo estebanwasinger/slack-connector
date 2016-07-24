@@ -45,9 +45,6 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
             </twitter:keywords>
         </twitter:filtered-stream>
         <logger message="#[payload.text + &quot;  &quot; + payload.user.name + &quot;  &quot; + payload.user.screenname]" level="INFO" doc:name="Logger"/>
-        <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="${channel.id}" iconURL="http://icons.iconarchive.com/icons/danleech/simple/1024/twitter-icon.png" username="Twitter Bot" message="New Tweet about MuleSoft!" doc:name="Slack">
-            <slack:chat-attachment color="#489fd7" text="#[payload.text]"/>
-            <slack:field title="Tweet Author" value="#[payload.user.name]"/>
-        </slack:post-message-with-attachment>
+        <slack:post-message-with-attachment config-ref="Slack__Connection_Managament_type_strategy" channelId="G03GX5CHC" iconURL="https://www.cloudbees.com/sites/default/files/blog/butler-devil.png" username="Jenkins Blamer" doc:name="Slack"/>
     </flow>
 </mule>

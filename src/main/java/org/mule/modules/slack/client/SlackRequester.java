@@ -6,7 +6,6 @@
 package org.mule.modules.slack.client;
 
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -18,9 +17,6 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
 
-/**
- * Created by estebanwasinger on 5/9/15.
- */
 public class SlackRequester {
 
     String token;
