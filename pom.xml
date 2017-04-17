@@ -22,7 +22,7 @@
         <devkit.studio.package.skip>false</devkit.studio.package.skip>
         <jersey-client.version>2.11</jersey-client.version>
         <sonar.exclusions>
-            **/client/model/**/*
+            **/client/mdodel/**/*
         </sonar.exclusions>
     </properties>
 
